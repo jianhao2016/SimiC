@@ -8,6 +8,6 @@ To run simicLASSO with Single-cell RNA-seq of mouse cerebral cortex dataset[GSE6
 
 go to folder `code`, in command line, type in 
 ```
-python clus_regression_mouse.py --similarity 1 --p2df <path to dataframe file> --p2fc <path to feature column file>  --num_target_genes 100
+python clus_regression.py --similarity 1 --p2df <path to dataframe file> --p2fc <path to feature column file>  --num_target_genes 100
 ```
 This will run simicLASSO with output GRNs of top 100 expressed target genes.
