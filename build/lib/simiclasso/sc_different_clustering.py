@@ -25,7 +25,7 @@ from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans, SpectralClustering
 from sklearn.decomposition import NMF
 from sklearn.metrics import accuracy_score, adjusted_mutual_info_score
-# from .visualization import tsne_df
+from visualization import tsne_df
 from common_io import load_dataFrame
 
 def kmeans_clustering(X, k_cluster, numIter):

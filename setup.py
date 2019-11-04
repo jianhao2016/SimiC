@@ -10,19 +10,15 @@
 This is the setup file required by setuptools to packaging python code.
 """
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
-
-with open('README.md', 'r') as f:
-    long_description = f.read()
 
 setup(
         name = 'simiclasso',
-        version = '0.0.2',
+        version = '0.0.3',
         author = 'Jianhao Peng',
         author_email = 'jianhao2@illinois.edu',
-        long_description = long_description,
-        long_description_content_type = 'text/markdown',
+        description = 'initial package for simiclasso',
         # url='https://github.com/jianhao2016/simicLASSO_git',
         packages = ['simiclasso',],
         package_dir = {'': 'code'},
@@ -33,4 +29,5 @@ setup(
             'Operating System :: OS independent',
             ],
         python_requires='>=3.6',
+        zip_safe = False
         )
