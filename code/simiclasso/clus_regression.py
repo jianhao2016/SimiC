@@ -29,10 +29,10 @@ from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans, SpectralClustering
 from sklearn.decomposition import NMF
 from sklearn.metrics import accuracy_score, adjusted_mutual_info_score
-from common_io import load_dataFrame, extract_df_columns, split_df_and_assignment
-from evaluation_metric import get_r_squared
-from sc_different_clustering import kmeans_clustering, nmf_clustering, spectral_clustering, evaluation_clustering
-from gene_id_to_name import load_dict, save_dict
+from .common_io import load_dataFrame, extract_df_columns, split_df_and_assignment
+from .evaluation_metric import get_r_squared
+from .sc_different_clustering import kmeans_clustering, nmf_clustering, spectral_clustering, evaluation_clustering
+from .gene_id_to_name import load_dict, save_dict
 from scipy.linalg import eigh, eigvalsh
 
 def extract_cluster_from_assignment(df_in, assignment, k_cluster):
