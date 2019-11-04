@@ -446,6 +446,13 @@ if __name__ == '__main__':
             help = 'path to feature column')
     parser.add_argument('--p2assignment', type = str, default = None,
             help = 'path to ground truth assignment file')
+    parser.add_argument('--p2tf', type = str, default = None,
+            help = 'path to list of TFs')
+    parser.add_argument('--k_cluster', type=int, default = None,
+            help='number of clusters in the data, default None')
+    parser.add_argument('--gene_list_type', type = str,
+            choices = ['ensembl', 'symbol'], default = 'ensembl',
+            help = 'gene annotation used in gene list')
 
     parser.add_argument('--similarity', type=int, choices=[0, 1], default=1,
             help='0: no similarity constraint, 1: add similarity')
@@ -513,6 +520,9 @@ if __name__ == '__main__':
         elif expr_dtype == 'rwr':
             file_name_df = 'smoothed_dataframe_{}_cells_per_cluster_all_gene_coexpression'.format(cells_per_cluster)
             p2df_file = os.path.join(data_root, 'ensembl94', file_name_df)
+
+    if args.k_cluster != None:
+        k_cluster = args.k_cluster
 
     if set_of_gene == 'all':
         file_name_feat_cols = 'df_feature_column'
@@ -591,7 +601,7 @@ if __name__ == '__main__':
             assignment = []
             with open(p2assign_file, 'r') as f:
                 for line in f:
-                    label = line.split()
+                    label = line.split()[0]
                     assignment.append(int(label))
             assignment = np.array(assignment)
         else:
@@ -624,9 +634,13 @@ if __name__ == '__main__':
     print('-' * 7)
 
     # p2tf_gene_list = os.path.join(gene_list_root, 'gene_id_TF_and_ensembl_pickle')
-    p2tf_gene_list = os.path.join(gene_list_root, 'top_50_MAD_val_selected_TF_pickle')
+    if args.p2tf != None:
+        p2tf_gene_list = args.p2tf
+    else:
+        p2tf_gene_list = os.path.join(gene_list_root, 'top_50_MAD_val_selected_TF_pickle')
     # p2tf_gene_list = os.path.join(gene_list_root, 'top_200_MAD_val_selected_TF_pickle')
     p2target_gene_list = os.path.join(gene_list_root, 'gene_id_non_TF_and_ensembl_pickle')
+
 
     with open(p2tf_gene_list, 'rb') as f:
         tf_list = pickle.load(f)
@@ -635,11 +649,11 @@ if __name__ == '__main__':
         target_list = pickle.load(f)
         target_list = list(target_list)
 
-    if expr_name == 'mouse' or expr_name == 'human_mgh':
+    if args.gene_list_type == 'symbol':
         with open('../data/merged_gene_id_to_name_pickle', 'rb') as f:
             ENSG_2_symbol_dict = pickle.load(f)
         # symbol_2_ENSG_dict = dict((v, k) for k, v in ENSG_2_symbol_dict.items())
-        tf_list = [ENSG_2_symbol_dict[a] for a in tf_list if a in ENSG_2_symbol_dict]
+        # tf_list = [ENSG_2_symbol_dict[a] for a in tf_list if a in ENSG_2_symbol_dict]
         target_list = [ENSG_2_symbol_dict[a] for a in target_list if a in ENSG_2_symbol_dict]
 
     query_target_list = get_top_k_non_zero_targets(num_target, df_train, target_list)
@@ -729,12 +743,11 @@ if __name__ == '__main__':
                          'query_targets' : [symbols.upper() for symbols in query_target_list]
                          }
 
-    dict_name = '{}_data_{}_cells_{}_similarity_{}_target'.format(expr_dtype,
-            cells_per_cluster,
+    dict_name = '{}_data_{}_similarity_{}_target'.format(expr_dtype,
             similarity,
             num_target)
     # path_2_saved_dict = os.path.join('results_cima', dict_name)
-    path_2_saved_dict = os.path.join('1000_target', dict_name)
+    path_2_saved_dict = os.path.join('/data/jianhao/hepatocyte_update_dataset_101619', dict_name)
     save_dict(dict_to_saved, path_2_saved_dict)
 
 
