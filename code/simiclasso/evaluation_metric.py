@@ -36,7 +36,7 @@ def get_r_squared(y_true, y_pred, k = 0,
         k = 0, ordinary R2, nothing changed
         k = X.shape[1], Adjusted R-Squared, 
     '''
-    R2_val = r2_score(y_true, y_pred, sample_weight, multioutput = 'uniform_average')
+    R2_val = r2_score(y_true, y_pred, sample_weight, multioutput = multioutput)
 
     # num_sample = len(y_true)
     num_sample = y_pred.shape[0]

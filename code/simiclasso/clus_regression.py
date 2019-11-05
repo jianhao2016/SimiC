@@ -108,6 +108,18 @@ def loss_function_value(mat_dict, weight_dict, similarity, lambda1, lambda2):
             loss += lambda2 * (np.linalg.norm(W_i - W_ip1) ** 2)
     return loss
 
+def std_error_per_cluster(mat_dict, weight_dict):
+    std_error_dict = {}
+    for label in mat_dict.keys():
+        Y_i = mat_dict[label]['target_mat']
+        X_i = mat_dict[label]['tf_mat']
+        W_i = weight_dict[label]
+        m, n_x = X_i.shape
+        std_error = np.sqrt(1/m) * np.linalg.norm( Y_i - X_i @ W_i, axis = 0)
+        std_error_dict[label] = std_error
+    return std_error_dict
+
+
 
 def get_gradient(mat_dict, weight_dict, label, similarity, lambda1, lambda2):
     '''
@@ -159,6 +171,7 @@ def average_r2_score(mat_dict, weight_dict):
     '''
     num_cluster = len(weight_dict.keys())
     sum_r2 = 0
+    r2_dict = {}
     for label in weight_dict:
         X_i = mat_dict[label]['tf_mat']
         Y_i = mat_dict[label]['target_mat']
@@ -175,10 +188,13 @@ def average_r2_score(mat_dict, weight_dict):
         W_i_avg = np.mean(W_i, axis = 1)
         W_avg_count = np.count_nonzero(W_i_avg > 1e-3)
         num_idpt_variable = min(m, W_avg_count) - 2
-        sum_r2 += get_r_squared(Y_i, Y_pred, k = num_idpt_variable)
+        list_of_r_squared = get_r_squared(Y_i, Y_pred, k = num_idpt_variable,
+                multioutput = 'raw_values')
+        r2_dict[label] = list_of_r_squared
+        sum_r2 += np.mean(list_of_r_squared)
 
     aver_r2 = sum_r2 / num_cluster
-    return aver_r2
+    return aver_r2, r2_dict
 
 
 def rcd_lasso_multi_cluster(mat_dict, similarity,
@@ -198,7 +214,7 @@ def rcd_lasso_multi_cluster(mat_dict, similarity,
     weight_dict_0 = copy.deepcopy(weight_dict)
     loss_0 = loss_function_value(mat_dict, weight_dict, similarity,
             lambda1, lambda2)
-    r2_0 = average_r2_score(mat_dict, weight_dict)
+    r2_0, r2_dict_0 = average_r2_score(mat_dict, weight_dict)
 
     if not slience:
         print('strat RCD process...')
@@ -214,7 +230,7 @@ def rcd_lasso_multi_cluster(mat_dict, similarity,
     pause_step = 50000
     while num_iter <= 500000:
         num_iter += 1
-        if num_iter % pause_step == 0 and False:
+        if num_iter % pause_step == 0 and not slience:
             t1 = time.time()
             loss_tmp = loss_function_value(mat_dict, weight_dict, similarity,
                     lambda1, lambda2)
@@ -237,7 +253,7 @@ def rcd_lasso_multi_cluster(mat_dict, similarity,
 
     loss_final = loss_function_value(mat_dict, weight_dict, similarity,
             lambda1, lambda2)
-    r2_final = average_r2_score(mat_dict, weight_dict)
+    r2_final, r2_dict_final = average_r2_score(mat_dict, weight_dict)
     if not slience:
         print('\tloss w. reg after RCD: {:.4f}'.format(loss_final))
         print('\tR squared after RCD: {:.4f}'.format(r2_final))
@@ -280,7 +296,7 @@ def get_top_k_non_zero_targets(top_k, df, target_list):
     # ipdb.set_trace()
     df_target = extract_df_columns(df, target_list)
     new_target_list = df_target.columns.values.tolist()
-    sum_list = df_target.sum().values
+    sum_list = df_target.var().values
     idx = np.argpartition(sum_list, -top_k)
     # print(idx)
     important_target_list = []
@@ -322,7 +338,8 @@ def k_fold_evaluation(k, mat_dict_train, similarity, lambda1, lambda2):
                 idx, k)
         weight_dict_trained, _ = rcd_lasso_multi_cluster(mat_dict_train, similarity,
                 lambda1, lambda2, slience = True)
-        r2_tmp += average_r2_score(mat_dict_eval, weight_dict_trained)
+        r2_aver, _ = average_r2_score(mat_dict_eval, weight_dict_trained)
+        r2_tmp += r2_aver
 
     aver_r2_tmp = r2_tmp/k
     return aver_r2_tmp
@@ -438,6 +455,7 @@ def simicLASSO_op(p2df, p2fc, p2assignment, k_cluster, similarity, p2tf,
 
 
     df = df.reset_index(drop=True)
+    df[feat_cols] = X
     df_train, df_test, assign_train, assign_test = split_df_and_assignment(df, assignment)
     print('df test = ', df_test.shape)
     print('test data assignment set:', set(list(assign_test)))
@@ -513,10 +531,12 @@ def simicLASSO_op(p2df, p2fc, p2assignment, k_cluster, similarity, p2tf,
                 lambda1 = 0, lambda2 = 0))
         train_error.append(loss_function_value(mat_dict_train, trained_weight_dict, similarity,
                 lambda1 = 0, lambda2 = 0))
+        std_error_dict_test = std_error_per_cluster(mat_dict_test, trained_weight_dict)
         # ipdb.set_trace()
-        r2_final_train.append(average_r2_score(mat_dict_train, trained_weight_dict))
-        r2_final_test.append(average_r2_score(mat_dict_test, trained_weight_dict))
-        r2_final_0 += average_r2_score(mat_dict_test, weight_dict_0)
+        r2_final_train.append(average_r2_score(mat_dict_train, trained_weight_dict)[0])
+        r2_aver_test, r2_dict_test = average_r2_score(mat_dict_test, trained_weight_dict)
+        r2_final_test.append(r2_aver_test)
+        r2_final_0 += average_r2_score(mat_dict_test, weight_dict_0)[0]
     print('-' * 7)
     # print(train_error)
     print('final train error w.o. reg = {:.4f}+/-{:.4f}'.format(np.mean(train_error),
@@ -539,6 +559,8 @@ def simicLASSO_op(p2df, p2fc, p2assignment, k_cluster, similarity, p2tf,
     gene_id_name_mapping = load_dict(path_to_gene_name_dict)
 
     dict_to_saved = {'weight_dic' : trained_weight_dict,
+                     'adjusted_r_squared': r2_dict_test,
+                     'standard_error': std_error_dict_test,
                      'TF_ids'     : [symbols.upper() for symbols in TF_ids],
                      'query_targets' : [symbols.upper() for symbols in query_target_list]
                      }
