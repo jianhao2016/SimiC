@@ -65,7 +65,11 @@ def extract_tf_target_mat_from_cluster_dict(cluster_dict, tf_list, target_list):
     for label in cluster_dict:
         cur_df = cluster_dict[label]
         TF_df = extract_df_columns(cur_df, tf_list)
-        TF_mat = TF_df.values
+        tmp_mat = TF_df.values
+        # add fixed value 1 to last column, for the bias term in regression.
+        m, n_x = tmp_mat.shape
+        TF_mat = np.ones((m, n_x + 1))
+        TF_mat[:, :-1] = tmp_mat
         TF_list = TF_df.columns.values.tolist()
 
         target_df = extract_df_columns(cur_df, target_list)
@@ -131,6 +135,9 @@ def get_gradient(mat_dict, weight_dict, label, similarity, lambda1, lambda2):
     W_i = weight_dict[label]
     m, n_x = X_i.shape
 
+    last_label = max(weight_dict.keys())
+    first_label = min(weight_dict.keys())
+
     grad_f = 2/m * X_i.T @ (X_i @ W_i - Y_i) + lambda1 * np.sign(W_i)
     # grad_f = one_step_gradient(X_i, W_i, Y_i, lambda1)
     if similarity:
@@ -139,6 +146,10 @@ def get_gradient(mat_dict, weight_dict, label, similarity, lambda1, lambda2):
         num_labels = len(weight_dict.keys())
         W_i_minus1 = weight_dict[(label -1) % num_labels]
         W_i_plus1 = weight_dict[(label + 1) % num_labels]
+        if label == last_label:
+            W_i_plus1 = W_i
+        if label == first_label:
+            W_i_minus1 = W_i
         grad_f += 2 * lambda2 * (W_i - W_i_plus1 + W_i - W_i_minus1)
     return grad_f
 
@@ -199,7 +210,7 @@ def average_r2_score(mat_dict, weight_dict):
 
 def rcd_lasso_multi_cluster(mat_dict, similarity,
         lambda1 = 1e-3, lambda2 = 1e-3,
-        slience = False):
+        slience = False, max_rcd_iter = 50000):
     L_max_dict = get_L_max(mat_dict, similarity, lambda1, lambda2)
 
     weight_dict = {}
@@ -228,7 +239,7 @@ def rcd_lasso_multi_cluster(mat_dict, similarity,
     label_list = list(mat_dict)
     time_sum = 0
     pause_step = 50000
-    while num_iter <= 500000:
+    while num_iter <= max_rcd_iter:
         num_iter += 1
         if num_iter % pause_step == 0 and not slience:
             t1 = time.time()
@@ -375,7 +386,7 @@ def get_train_mat_in_k_fold(mat_dict, idx, k):
 def simicLASSO_op(p2df, p2fc, p2assignment, k_cluster, similarity, p2tf, 
         p2saved_file, num_target_genes, gene_list_type = 'symbol', 
         numIter = 1000, _NF = 1, lambda1 = 1e-2, lambda2 = 1e-5,
-        cross_val = False, num_rep = 1):
+        cross_val = False, num_rep = 1, max_rcd_iter = 500000):
     '''
     perform the GRN inference algorithm, simicLASSO.
     args:
@@ -524,7 +535,7 @@ def simicLASSO_op(p2df, p2fc, p2assignment, k_cluster, similarity, p2tf,
     r2_final_0 = 0
     for _ in range(num_rep):
         trained_weight_dict, weight_dict_0 = rcd_lasso_multi_cluster(mat_dict_train, similarity,
-                                        lambda1, lambda2, slience = True)
+                                        lambda1, lambda2, slience = True, max_rcd_iter = max_rcd_iter)
 
 
         test_error.append(loss_function_value(mat_dict_test, trained_weight_dict, similarity,
