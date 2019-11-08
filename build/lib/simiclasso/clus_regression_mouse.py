@@ -13,7 +13,6 @@ This is an implementation of the paper online NMF.
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import cvxpy as cp
 import pickle
 import time
 import os
@@ -23,18 +22,17 @@ import random
 import copy
 import itertools
 import math
-import numba as nb
 from sklearn.linear_model import LassoLars, MultiTaskLasso
 from sklearn.preprocessing import normalize
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans, SpectralClustering
 from sklearn.decomposition import NMF
 from sklearn.metrics import accuracy_score, adjusted_mutual_info_score
-from visualization import tsne_df, tsne_df_refine
-from common_io import load_dataFrame, extract_df_columns, split_df_and_assignment
-from evaluation_metric import get_r_squared
-from sc_different_clustering import kmeans_clustering, nmf_clustering, spectral_clustering, evaluation_clustering
-from gene_id_to_name import load_dict, save_dict
+from simiclasso.visualization import tsne_df, tsne_df_refine
+from simiclasso.common_io import load_dataFrame, extract_df_columns, split_df_and_assignment
+from simiclasso.evaluation_metric import get_r_squared
+from simiclasso.sc_different_clustering import kmeans_clustering, nmf_clustering, spectral_clustering, evaluation_clustering
+from simiclasso.gene_id_to_name import load_dict, save_dict
 from scipy.linalg import eigh, eigvalsh
 
 # def total_lasso(df_in, tf_list, target_list):

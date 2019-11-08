@@ -19,7 +19,7 @@ import csv
 import os
 import pandas as pd
 import argparse
-from gene_id_to_name import load_dict, save_dict
+from simiclasso.gene_id_to_name import load_dict, save_dict
 
 def convert_weights_to_count(W_i, top_k_weights):
     '''
@@ -66,6 +66,8 @@ def get_gene_link_from_pairs_of_idxs(TF_list, target_list,
         str_2_saved += '\n' + new_item
     return str_2_saved, df_2_saved
 
+def main_sort(p2saved_dict, top_k):
+    pass
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -28,10 +28,10 @@ from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans, SpectralClustering
 from sklearn.decomposition import NMF
 from sklearn.metrics import accuracy_score, adjusted_mutual_info_score
-from common_io import load_dataFrame, extract_df_columns, split_df_and_assignment
-from evaluation_metric import get_r_squared
-from sc_different_clustering import kmeans_clustering, nmf_clustering, spectral_clustering, evaluation_clustering
-from gene_id_to_name import load_dict, save_dict
+from simiclasso.common_io import load_dataFrame, extract_df_columns, split_df_and_assignment
+from simiclasso.evaluation_metric import get_r_squared
+from simiclasso.sc_different_clustering import kmeans_clustering, nmf_clustering, spectral_clustering, evaluation_clustering
+from simiclasso.gene_id_to_name import load_dict, save_dict
 from scipy.linalg import eigh, eigvalsh
 
 def extract_cluster_from_assignment(df_in, assignment, k_cluster):
@@ -315,6 +315,17 @@ def get_top_k_non_zero_targets(top_k, df, target_list):
     # print(df[important_target_list].sum())
     return important_target_list
 
+def get_top_k_MAD_TFs(top_k, df, tf_list):
+    '''
+    tf_list: list of all TF, in 'TF_symbol_pickle'
+    '''
+    df_tf = extract_df_columns(df, tf_list)
+    new_tf_list = df_tf.columns.values.tolist()
+    MAD_df = df_tf.mad(axis = 0)
+    top_k_tfs = MAD_df.nlargest(top_k).index.values.tolist()
+    return top_k_tfs
+    
+
 
 def cross_validation(mat_dict_train, similarity, list_of_l1, list_of_l2):
     '''
@@ -382,29 +393,31 @@ def get_train_mat_in_k_fold(mat_dict, idx, k):
                 }
     return mat_dict_train, mat_dict_eval
 
-def simicLASSO_op(p2df, p2fc, p2assignment, k_cluster, similarity, p2tf, 
-        p2saved_file, num_target_genes, gene_list_type = 'symbol', 
+def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf, 
+        p2saved_file, num_TFs, num_target_genes, 
         numIter = 1000, _NF = 1, lambda1 = 1e-2, lambda2 = 1e-5,
-        cross_val = False, num_rep = 1, max_rcd_iter = 500000):
+        cross_val = False, num_rep = 1, max_rcd_iter = 500000, 
+        df_with_label = True):
     '''
     perform the GRN inference algorithm, simicLASSO.
     args:
         p2df: path to dataframe
-        p2fc: path to feature column
+            dataframe should be:
+                    gene1, gene2, ..., genek, label
+            cell1:  x,     x,   , ..., x,   , type1
+            cell2:  x,     x,   , ..., x,   , type2
+
         p2assignment: path to clustering order assignment file.
                       a text file with each line corresponding to cell order.
         k_cluster: number of cluster in dataset.
         similarity: 1 - Yes, 0 - No.
-        p2tf: path to list of TF used in regression.
+        p2tf: path to list of all TFs.
+        num_TFs: number of TFs used in regression.
         num_target_genes: number of target genes used in regression
-        gene_list_type: annotation used in feature column, either 'symbol',
-                        as 'GATA6', or 'ensembl', as 'ENSGxxxxxx'
         num_rep: number of repeated test.
     output: 
         save the weight dictionary and gene list to p2saved_file.
     '''
-    if gene_list_type not in ['symbol', 'ensembl']:
-        raise ValueError('gene_list_type must be either "symbol" or "ensembl"')
 
     if p2df == None:
         raise ValueError('please enter the path to dataframe file saved from load_data.py')
@@ -413,17 +426,13 @@ def simicLASSO_op(p2df, p2fc, p2assignment, k_cluster, similarity, p2tf,
     else:
         raise ValueError('{} is not a valid file'.format(p2df))
 
-    if p2fc == None:
-        raise ValueError('please enter the path to feature column file')
-    elif os.path.isfile(p2fc):
-        p2feat_file = p2fc
+    original_df = pd.read_pickle(p2df)
+    if df_with_label:
+        original_feat_cols = list(original_df.columns[:-1])
     else:
-        raise ValueError('{} is not a valid file'.format(p2fc))
+        original_feat_cols = list(original_df.columns)
 
-    with open(p2feat_file, 'rb') as f:
-        original_feat_cols = pickle.load(f)
-
-    X_raw, Y, feat_cols = load_dataFrame(p2df_file, original_feat_cols)
+    X_raw, Y, feat_cols = load_dataFrame(p2df_file, original_feat_cols, df_with_label)
     X = normalize(X_raw) * _NF
     len_of_gene = len(feat_cols)
     # X = X_raw
@@ -442,14 +451,17 @@ def simicLASSO_op(p2df, p2fc, p2assignment, k_cluster, similarity, p2tf,
                     label = line.split()[0]
                     assignment.append(int(label))
             assignment = np.array(assignment)
-        else:
-            print('invalid assignment file, use clustering assignment.')
-            D_final, assignment = clustering_method(X, k_cluster, numIter)
+    else:
+        print('invalid assignment file, use clustering assignment.')
+        D_final, assignment = clustering_method(X, k_cluster, numIter)
+        if df_with_label:
             acc, AMI = evaluation_clustering(assignment, Y)
             print('clustering accuracy = {:.4f}'.format(acc))
             print('AMI = {:.4f}'.format(AMI))
             print('D_final = ', D_final)
             print('shape of D mat:', D_final.shape)
+        else:
+            print('no label provided in dataframe, accuracy not available')
 
 
     #### BEGIN of the regression part
@@ -480,24 +492,28 @@ def simicLASSO_op(p2df, p2fc, p2assignment, k_cluster, similarity, p2tf,
         raise ValueError('invalid path to tf list file.')
 
     # p2tf_gene_list = os.path.join(gene_list_root, 'top_200_MAD_val_selected_TF_pickle')
-    gene_list_root = '../../data/diff_gene_list'
-    p2target_gene_list = os.path.join(gene_list_root, 'gene_id_non_TF_and_ensembl_pickle')
+    # gene_list_root = '../../data/diff_gene_list'
+    # p2target_gene_list = os.path.join(gene_list_root, 'gene_id_non_TF_and_ensembl_pickle')
 
 
     with open(p2tf_gene_list, 'rb') as f:
-        tf_list = pickle.load(f)
-        tf_list = list(tf_list)
-    with open(p2target_gene_list, 'rb') as f:
-        target_list = pickle.load(f)
-        target_list = list(target_list)
+        full_tf_list = pickle.load(f)
+        full_tf_list = list(full_tf_list)
+    # with open(p2target_gene_list, 'rb') as f:
+    #     target_list = pickle.load(f)
+    #     target_list = list(target_list)
 
-    if gene_list_type == 'symbol':
-        with open('../../data/merged_gene_id_to_name_pickle', 'rb') as f:
-            ENSG_2_symbol_dict = pickle.load(f)
-        # symbol_2_ENSG_dict = dict((v, k) for k, v in ENSG_2_symbol_dict.items())
-        # tf_list = [ENSG_2_symbol_dict[a] for a in tf_list if a in ENSG_2_symbol_dict]
-        target_list = [ENSG_2_symbol_dict[a] for a in target_list if a in ENSG_2_symbol_dict]
+    # if gene_list_type == 'symbol':
+    #     with open('../../data/merged_gene_id_to_name_pickle', 'rb') as f:
+    #         ENSG_2_symbol_dict = pickle.load(f)
+    #     # symbol_2_ENSG_dict = dict((v, k) for k, v in ENSG_2_symbol_dict.items())
+    #     # tf_list = [ENSG_2_symbol_dict[a] for a in tf_list if a in ENSG_2_symbol_dict]
+    #     target_list = [ENSG_2_symbol_dict[a] for a in target_list if a in ENSG_2_symbol_dict]
 
+    full_tf_list_lower_case = [x.lower() for x in full_tf_list]
+    target_list = [x for x in feat_cols if x.lower() not in full_tf_list_lower_case]
+
+    tf_list = get_top_k_MAD_TFs(num_TFs, df_train, full_tf_list)
     query_target_list = get_top_k_non_zero_targets(num_target_genes, df_train, target_list)
     print('-' * 7)
 

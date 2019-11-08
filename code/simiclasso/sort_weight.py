@@ -19,7 +19,7 @@ import csv
 import os
 import pandas as pd
 import argparse
-from .gene_id_to_name import load_dict, save_dict
+from simiclasso.gene_id_to_name import load_dict, save_dict
 
 def convert_weights_to_count(W_i, top_k_weights):
     '''

@@ -26,7 +26,7 @@ def extract_df_columns(df, feature_cols):
     return extracted_df
 
 
-def load_dataFrame(df_file, feature_cols):
+def load_dataFrame(df_file, feature_cols, df_with_label = True):
     '''
     This function takes a pandas dataFrame from disk and turns it into expression matrix 
     and labels
@@ -48,7 +48,10 @@ def load_dataFrame(df_file, feature_cols):
     X_raw = X_raw_df.values
 
     X = preprocessing_expression_mat(X_raw)
-    Y = df['label'].values
+    if df_with_label:
+        Y = df['label'].values
+    else:
+        Y = None
 
     print('Done loading, shape of X = ', X.shape)
     return X, Y, new_feature_cols
