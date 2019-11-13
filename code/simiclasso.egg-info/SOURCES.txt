@@ -58,3 +58,4 @@ data/diff_gene_list/top_50_MAD_val_selected_TF_pickle
 data/diff_gene_list/undefined_gene_list
 dist/simiclasso-0.0.3-py3.6.egg
 dist/simiclasso-0.1.0-py3.6.egg
+dist/simiclasso-0.1.1-py3.6.egg

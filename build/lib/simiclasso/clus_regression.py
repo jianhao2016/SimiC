@@ -42,7 +42,8 @@ def extract_cluster_from_assignment(df_in, assignment, k_cluster):
     '''
     assign_np = np.array(assignment)
     cluster_dict = {}
-    for label in range(k_cluster):
+    # for label in range(k_cluster):
+    for label in set(assignment): 
         cluster_idx = np.where(assign_np == label)
         # df_in may not in order
         tmp = df_in.index.values
@@ -106,8 +107,11 @@ def loss_function_value(mat_dict, weight_dict, similarity, lambda1, lambda2):
         # loss *= 1/m
         if similarity:
             # W_i = weight_dict[idx]
-            assert ((label + 1) % num_labels) in mat_dict.keys()
-            W_ip1 = weight_dict[(label + 1) % num_labels]
+            # assert ((label + 1) % num_labels) in mat_dict.keys()
+            if label != max(mat_dict.keys()):
+                W_ip1 = weight_dict[label + 1]
+            else:
+                W_ip1 = W_i
             loss += lambda2 * (np.linalg.norm(W_i - W_ip1) ** 2)
     return loss
 
@@ -143,12 +147,14 @@ def get_gradient(mat_dict, weight_dict, label, similarity, lambda1, lambda2):
         # [0, 1, 2], pick 0, then (0 -1) % 3 = 2, the last term
         # if pick 2, then (2+1) % 3 = 0, the first term
         num_labels = len(weight_dict.keys())
-        W_i_minus1 = weight_dict[(label -1) % num_labels]
-        W_i_plus1 = weight_dict[(label + 1) % num_labels]
         if label == last_label:
             W_i_plus1 = W_i
+        else:
+            W_i_plus1 = weight_dict[(label + 1)]
         if label == first_label:
             W_i_minus1 = W_i
+        else:
+            W_i_minus1 = weight_dict[(label -1)]
         grad_f += 2 * lambda2 * (W_i - W_i_plus1 + W_i - W_i_minus1)
     return grad_f
 
@@ -580,9 +586,9 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
 
     # # ipdb.set_trace()
     # # variable_list[1] *= 1.1
-    root_path = '../../data/'
-    path_to_gene_name_dict = os.path.join(root_path, 'merged_gene_id_to_name_pickle')
-    gene_id_name_mapping = load_dict(path_to_gene_name_dict)
+    # root_path = '../../data/'
+    # path_to_gene_name_dict = os.path.join(root_path, 'merged_gene_id_to_name_pickle')
+    # gene_id_name_mapping = load_dict(path_to_gene_name_dict)
 
     dict_to_saved = {'weight_dic' : trained_weight_dict,
                      'adjusted_r_squared': r2_dict_test,
@@ -593,358 +599,3 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
 
     save_dict(dict_to_saved, p2saved_file)
 
-# if __name__ == '__main__':
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('--numIter', type=int, default=1000)
-#     parser.add_argument('--method', type=str, choices=['kmeans', 'nmf', 'spectral'],
-#             default = 'kmeans')
-#     parser.add_argument('--NF', type=float, default=1, help='normalization factor')
-# 
-#     parser.add_argument('--num_cells', type=int, default=500,
-#             help='number of cells per cluster')
-#     parser.add_argument('--num_target_genes', type=int, default=10,
-#             help='number of target genes')
-# 
-#     parser.add_argument('--p2df', type=str, default = None,
-#             help = 'path to dataframe')
-#     parser.add_argument('--p2fc', type=str, default = None,
-#             help = 'path to feature column')
-#     parser.add_argument('--p2assignment', type = str, default = None,
-#             help = 'path to ground truth assignment file')
-#     parser.add_argument('--p2tf', type = str, default = None,
-#             help = 'path to list of TFs')
-#     parser.add_argument('--k_cluster', type=int, default = None,
-#             help='number of clusters in the data, default None')
-#     parser.add_argument('--gene_list_type', type = str,
-#             choices = ['ensembl', 'symbol'], default = 'ensembl',
-#             help = 'gene annotation used in gene list')
-# 
-#     parser.add_argument('--similarity', type=int, choices=[0, 1], default=1,
-#             help='0: no similarity constraint, 1: add similarity')
-#     parser.add_argument('--lambda1', type=float, default=1e-2,
-#             help='sparsity param in lasso')
-#     parser.add_argument('--lambda2', type=float, default=1e-5,
-#             help='param of similarity constraint')
-#     parser.add_argument('--data_type', type=str,
-#             choices=['raw', 'rwr', 'magic'], default = 'magic')
-# 
-#     args = parser.parse_args()
-# 
-#     # set number of iteration, lambda in lasso, epsilon in dictionary update and normalization factor
-#     print(args)
-#     numIter = args.numIter
-#     method = args.method
-#     _NF = args.NF
-#     cells_per_cluster = args.num_cells
-#     similarity = (args.similarity == 1)
-#     expr_dtype = args.data_type
-#     num_target = args.num_target_genes
-#     # cima = False
-#     expr_name = 'human_mgh'
-#     # set_of_gene = 'TFs'
-#     set_of_gene = 'human_mgh'
-# 
-# 
-#     if expr_name == 'cima':
-#         data_root = '/data/cima/'
-#         k_cluster = 13
-#         p2feat_file = os.path.join(data_root, 'df_feature_column_cima')
-#         if expr_dtype == 'raw':
-#             p2df_file = os.path.join(data_root, 'pandas_dataframe_cima')
-#         elif expr_dtype == 'magic':
-#             p2df_file = os.path.join(data_root, 'pandas_dataframe_cima_magic')
-#         else:
-#             print('cima does not support data type:', expr_dtype)
-#             raise ValueError
-#     elif expr_name == 'mouse':
-#         data_root = '/data/jianhao/clus_GRN'
-#         k_cluster = 7
-#         if expr_dtype == 'raw':
-#             raise ValueError('mouse dont have raw')
-#         elif expr_dtype == 'magic':
-#             file_name_df = 'pandas_dataframe_mouse_magic'
-#             p2df_file = os.path.join(data_root, 'magic_expression_data', file_name_df)
-#     elif expr_name == 'human_mgh':
-#         data_root = '/data/jianhao/clus_GRN'
-#         k_cluster = 6
-#         if expr_dtype == 'raw':
-#             file_name_df = 'pandas_dataframe_human_MGH'
-#             p2df_file = os.path.join(data_root, 'raw_expression_data', file_name_df)
-#         elif expr_dtype == 'magic':
-#             file_name_df = 'pandas_dataframe_human_MGH_magic'
-#             p2df_file = os.path.join(data_root, 'magic_expression_data', file_name_df)
-#     else:
-#         data_root = '/data/jianhao/clus_GRN'
-#         k_cluster = 3
-# 
-#         if expr_dtype == 'raw':
-#             p2df_file = os.path.join(data_root, 'raw_expression_data', 'pandas_dataframe_{}'.format(cells_per_cluster))
-#         elif expr_dtype == 'magic':
-#             file_name_df = 'magic_smoothed_all_genes_{}_cells_per_cluster'.format(cells_per_cluster)
-#             p2df_file = os.path.join(data_root, 'magic_expression_data', file_name_df)
-#         elif expr_dtype == 'rwr':
-#             file_name_df = 'smoothed_dataframe_{}_cells_per_cluster_all_gene_coexpression'.format(cells_per_cluster)
-#             p2df_file = os.path.join(data_root, 'ensembl94', file_name_df)
-# 
-#     if args.k_cluster != None:
-#         k_cluster = args.k_cluster
-# 
-#     if set_of_gene == 'all':
-#         file_name_feat_cols = 'df_feature_column'
-#     elif set_of_gene == 'landmark':
-#         file_name_feat_cols = 'df_feature_column_lm'
-#     elif set_of_gene == 'ensembl':
-#         file_name_feat_cols = 'ensembl_gene_list'
-#     elif set_of_gene == 'encode_v29':
-#         file_name_feat_cols = 'gene_id_list_encode_v29_release_pickle'
-#     elif set_of_gene == 'not_encode_v29':
-#         file_name_feat_cols = 'gene_id_list_not_in_encode_v29_release_pickle'
-#     elif set_of_gene == 'TFs':
-#         file_name_feat_cols = 'TF_ids_human_protein_atlas_pickle'
-#     # next two condition consider only ensembl genes
-#     elif set_of_gene == 'TF_and_ensembl':
-#         file_name_feat_cols = 'gene_id_TF_and_ensembl_pickle'
-#     elif set_of_gene == 'not_TF_and_ensembl':
-#         file_name_feat_cols = 'gene_id_non_TF_and_ensembl_pickle'
-#     elif set_of_gene == 'mouse':
-#         file_name_feat_cols = 'df_feature_column_mouse'
-#     elif set_of_gene == 'human_mgh':
-#         file_name_feat_cols = 'df_feature_column_human_MGH'
-# 
-#     gene_list_root = '/data/jianhao/clus_GRN/diff_gene_list'
-#     p2feat_file = os.path.join(gene_list_root, file_name_feat_cols)
-# 
-#     if args.p2df == None:
-#         raise ValueError('please enter the path to dataframe file saved from load_data.py')
-#     elif os.path.isfile(args.p2df):
-#         p2df_file = args.p2df
-#     else:
-#         raise ValueError('{} is not a valid file'.format(args.p2df))
-# 
-#     if args.p2fc == None:
-#         raise ValueError('please enter the path to feature column file')
-#     elif os.path.isfile(args.p2fc):
-#         p2feat_file = args.p2fc
-#     else:
-#         raise ValueError('{} is not a valid file'.format(args.p2fc))
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-#     with open(p2feat_file, 'rb') as f:
-#         original_feat_cols = pickle.load(f)
-# 
-#     # tmp_df = pd.read_pickle(os.path.join(data_root, 'ensembl94', 'smoothed_dataframe_100_cells_per_cluster_all_gene_coexpression'))
-#     # ensembl_list = list(tmp_df.columns.values)
-# 
-#     # intersection = set.intersection(set(original_feat_cols), set(ensembl_list))
-#     # original_feat_cols = list(intersection)
-# 
-#     # ipdb.set_trace()
-#     X_raw, Y, feat_cols = load_dataFrame(p2df_file, original_feat_cols)
-#     X = normalize(X_raw) * _NF
-#     len_of_gene = len(feat_cols)
-#     # X = X_raw
-# 
-#     n_dim, m_dim = X.shape
-# 
-#     if method == 'kmeans':
-#         clustering_method = kmeans_clustering
-#     elif method == 'nmf':
-#         clustering_method = nmf_clustering
-#     elif method == 'spectral':
-#         clustering_method = spectral_clustering
-# 
-#     # get centroids and assignment from clustering
-#     #
-#     if args.p2assignment != None:
-#         p2assign_file = args.p2assignment
-#         if os.path.isfile(p2assign_file):
-#             assignment = []
-#             with open(p2assign_file, 'r') as f:
-#                 for line in f:
-#                     label = line.split()[0]
-#                     assignment.append(int(label))
-#             assignment = np.array(assignment)
-#         else:
-#             print('invalid assignment file, use clustering assignment.')
-#             D_final, assignment = clustering_method(X, k_cluster, numIter)
-#             acc, AMI = evaluation_clustering(assignment, Y)
-#             print('clustering accuracy = {:.4f}'.format(acc))
-#             print('AMI = {:.4f}'.format(AMI))
-#             print('D_final = ', D_final)
-#             print('shape of D mat:', D_final.shape)
-# 
-# 
-#     #### BEGIN of the regression part
-#     print('------ Begin the regression part...')
-#     df = pd.read_pickle(p2df_file)
-#     if expr_name == 'mouse' or expr_name == 'human_mgh':
-#         df = df.reset_index(drop=True)
-# 
-#     if expr_name == 'human_mgh':
-#         df = df.rename(columns = dict((k, k.replace("'", '')) for k in df.columns))
-#     print('df in regression shape = ', df.shape)
-# 
-# 
-#     # ipdb.set_trace()
-#     df_train, df_test, assign_train, assign_test = split_df_and_assignment(df, assignment)
-#     print('df test = ', df_test.shape)
-#     print('test data assignment set:', set(list(assign_test)))
-#     print('df train = ', df_train.shape)
-#     print('train data assignment set:', set(list(assign_train)))
-#     print('-' * 7)
-# 
-#     # p2tf_gene_list = os.path.join(gene_list_root, 'gene_id_TF_and_ensembl_pickle')
-#     if args.p2tf != None:
-#         p2tf_gene_list = args.p2tf
-#     else:
-#         p2tf_gene_list = os.path.join(gene_list_root, 'top_50_MAD_val_selected_TF_pickle')
-#     # p2tf_gene_list = os.path.join(gene_list_root, 'top_200_MAD_val_selected_TF_pickle')
-#     p2target_gene_list = os.path.join(gene_list_root, 'gene_id_non_TF_and_ensembl_pickle')
-# 
-# 
-#     with open(p2tf_gene_list, 'rb') as f:
-#         tf_list = pickle.load(f)
-#         tf_list = list(tf_list)
-#     with open(p2target_gene_list, 'rb') as f:
-#         target_list = pickle.load(f)
-#         target_list = list(target_list)
-# 
-#     if args.gene_list_type == 'symbol':
-#         with open('../data/merged_gene_id_to_name_pickle', 'rb') as f:
-#             ENSG_2_symbol_dict = pickle.load(f)
-#         # symbol_2_ENSG_dict = dict((v, k) for k, v in ENSG_2_symbol_dict.items())
-#         # tf_list = [ENSG_2_symbol_dict[a] for a in tf_list if a in ENSG_2_symbol_dict]
-#         target_list = [ENSG_2_symbol_dict[a] for a in target_list if a in ENSG_2_symbol_dict]
-# 
-#     query_target_list = get_top_k_non_zero_targets(num_target, df_train, target_list)
-#     print('-' * 7)
-# 
-#     print('.... generating train set')
-#     mat_dict_train, TF_ids, target_ids = load_mat_dict_and_ids(df_train, tf_list,
-#             query_target_list, assign_train, k_cluster)
-#     print('-' * 7)
-# 
-#     print('.... generating test set')
-#     mat_dict_test, _, _ = load_mat_dict_and_ids(df_test, tf_list, query_target_list,
-#             assign_test, k_cluster)
-#     print('-' * 7)
-# 
-#     # ### run cross_validation!!!!!! #############
-# 
-#     # print('start cross validation!!!')
-#     # list_of_l1 = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
-#     # # list_of_l1 = [1e-1, 1e-2, 1e-3]
-#     # list_of_l2 = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
-#     # l1_opt, l2_opt, r2_opt = cross_validation(mat_dict_train, similarity, list_of_l1, list_of_l2)
-#     # print('cv done! lambda1 = {}, lambda2 = {}, opt R squared on eval {:.4f}'.format(
-#     #     l1_opt, l2_opt, r2_opt))
-#     # print('-' * 7)
-#     # lambda1 = l1_opt
-#     # lambda2 = l2_opt
-# 
-#     lambda1 = args.lambda1
-#     lambda2 = args.lambda2
-# 
-#     ############### end of cv ####################
-# 
-# 
-#     #### optimize using RCD
-#     # ipdb.set_trace()
-#     train_error, test_error = [], []
-#     r2_final_train, r2_final_test = [], []
-#     r2_final_0 = 0
-#     num_rep = 1
-#     for _ in range(num_rep):
-#         trained_weight_dict, weight_dict_0 = rcd_lasso_multi_cluster(mat_dict_train, similarity,
-#                                         lambda1, lambda2, slience = True)
-# 
-# 
-#         test_error.append(loss_function_value(mat_dict_test, trained_weight_dict, similarity,
-#                 lambda1 = 0, lambda2 = 0))
-#         train_error.append(loss_function_value(mat_dict_train, trained_weight_dict, similarity,
-#                 lambda1 = 0, lambda2 = 0))
-#         # ipdb.set_trace()
-#         r2_final_train.append(average_r2_score(mat_dict_train, trained_weight_dict))
-#         r2_final_test.append(average_r2_score(mat_dict_test, trained_weight_dict))
-#         r2_final_0 += average_r2_score(mat_dict_test, weight_dict_0)
-#     print('-' * 7)
-#     # print(train_error)
-#     print('final train error w.o. reg = {:.4f}+/-{:.4f}'.format(np.mean(train_error),
-#                                                                 np.std(train_error)))
-#     print('test error w.o. reg = {:.4f}+/-{:.4f}'.format(np.mean(test_error),
-#                                                          np.std(test_error)))
-# 
-#     print('-' * 7)
-#     print('R squared of test set(before): {:.4f}'.format(r2_final_0/num_rep))
-# 
-#     print('R squared of train set(after): {:.4f}+/-{:.4f}'.format(np.mean(r2_final_train),
-#                                                                   np.std(r2_final_train)))
-#     print('R squared of test set(after): {:.4f}+/-{:.4f}'.format(np.mean(r2_final_test),
-#                                                                  np.std(r2_final_test)))
-# 
-#     # # ipdb.set_trace()
-#     # # variable_list[1] *= 1.1
-#     root_path = '/home/jianhao2/clus_GRN/data/'
-#     path_to_gene_name_dict = os.path.join(root_path, 'merged_gene_id_to_name_pickle')
-#     gene_id_name_mapping = load_dict(path_to_gene_name_dict)
-# 
-#     # for idx in range(k_cluster):
-#     #     print('cell type ', idx)
-#     #     find_top_k_TFs(5, query_target_list, trained_weight_dict[idx].T, TF_ids, gene_id_name_mapping)
-# 
-#     if expr_name != 'mouse' and expr_name != 'human_mgh':
-#         dict_to_saved = {'weight_dic' : trained_weight_dict,
-#                          'TF_ids'     : [gene_id_name_mapping[ids] for ids in TF_ids],
-#                          'query_targets' : [gene_id_name_mapping[ids] for ids in query_target_list]
-#                          }
-#     else:
-#         dict_to_saved = {'weight_dic' : trained_weight_dict,
-#                          'TF_ids'     : [symbols.upper() for symbols in TF_ids],
-#                          'query_targets' : [symbols.upper() for symbols in query_target_list]
-#                          }
-# 
-#     dict_name = '{}_data_{}_similarity_{}_target'.format(expr_dtype,
-#             similarity,
-#             num_target)
-#     # path_2_saved_dict = os.path.join('results_cima', dict_name)
-#     path_2_saved_dict = os.path.join('/data/jianhao/hepatocyte_update_dataset_101619', dict_name)
-#     save_dict(dict_to_saved, path_2_saved_dict)
-# 
-# 
-# 
-# 
-# 
-#     # -------------------
-#     # ###### VISUALIZATION
-#     # df_centroids = pd.DataFrame(D_final.reshape(k_cluster, len_of_gene), columns = feat_cols)
-#     # df_centroids['label'] = ['cell type {}'.format(x) for x in range(1, k_cluster + 1)]
-#     # # print('shape of centroid df:', df_centroids.shape)
-#     # # print('is D_centroids finite?', np.isfinite(df_centroids[feat_cols].values).all())
-# 
-#     # # # we need to normalize the input data X
-#     # df_final = pd.DataFrame(data = X, columns = feat_cols)
-#     # df_final['label'] = Y
-#     # df_final = df_final.append(df_centroids)
-#     # print('shape of df_final: ', df_final.shape)
-#     # #
-#     # # # # run tSNE for visualization
-#     # # tmp = '{gene_set}_smoothed_{raw_bool}_{n_cells}_cells_{cmethod}_magic'.format(
-#     # #         gene_set = set_of_gene, raw_bool = raw_data,
-#     # #         n_cells = cells_per_cluster, cmethod = method)
-#     # # file_name_fig = tmp
-#     # # p2f = os.path.join(data_root, 'pic', file_name_fig)
-# 
-# 
-#     # tmp = '{gene_set} smoothed: {data_type}, {n_cells} cells {cmethod}'.format(
-#     #         gene_set = set_of_gene, data_type = expr_dtype,
-#     #         n_cells = cells_per_cluster, cmethod = method)
-#     # fig_title = '{}\n acc: {:.4f}, AMI: {:.4f}'.format(tmp, acc, AMI)
-# 
-#     # assign_label = ['cell type {}'.format(n) for n in assignment]
-#     # tsne_df_refine(df_final, feat_cols, k_cluster, assignment, Y, '../tmp_feb.png', fig_title)
-#     # # # tsne_df(df_final, feat_cols, cells_per_cluster, k_cluster, p2f, fig_title)

@@ -18,7 +18,7 @@ import pandas as pd
 import pickle
 from scipy.sparse import coo_matrix, hstack
 
-def load_GSE_data(p2data, p2cell_type = None, df_with_label = False)
+def load_GSE_data(p2data, p2cell_type = None, df_with_label = False):
     if os.path.isfile(p2data):
         data_file = p2data
     else:
