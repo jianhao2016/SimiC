@@ -53,14 +53,15 @@ def cal_AUC_df(row_series_in, weight_series_in):
     AUC_score = np.sum(running_sum) / (np.sum(weight_series_in) * len_of_genes)
     return AUC_score
 
-def cal_AUC(row_vec_in, weight_vec_in):
+def cal_AUC(row_vec_in, weight_vec_in, percent_of_target = 1):
     row_np = np.array(row_vec_in)
     weight_np = np.array(weight_vec_in)
     expression_descending_order = np.argsort(row_np)[::-1]
     ordered_weighted = weight_np[expression_descending_order]
 
-    div_factor = 1
-    len_of_genes = len(ordered_weighted) // div_factor
+    # div_factor = 1
+    # len_of_genes = len(ordered_weighted) // div_factor
+    len_of_genes = int(len(ordered_weighted) * percent_of_target)
     sum_of_weight = np.sum(ordered_weighted[:len_of_genes])
 
     running_sum = [np.sum(ordered_weighted[:x+1]) for x in range(len_of_genes)]
@@ -68,7 +69,7 @@ def cal_AUC(row_vec_in, weight_vec_in):
     return AUC_score
 
 
-def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, threshold = None):
+def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, percent_of_target = 1):
     '''
     weight_mat: # num_TFs * num_Targets.
     target_ids: all targets, thresholding should only change the value to 0, not removing.
@@ -95,7 +96,7 @@ def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, threshold = Non
                 # weight_series_in = pd.Series(data = weight_mat[tf_idx, :], index = target_ids)
                 # AUC_score = cal_AUC(row_series_in, weight_series_in)
                 weight_vec_in = weight_mat[tf_idx, :]
-                AUC_score = cal_AUC(row_vec_in, weight_vec_in)
+                AUC_score = cal_AUC(row_vec_in, weight_vec_in, percent_of_target)
 
                 tmp_AUC_row[tf_idx] = AUC_score
             time_row_end = time.time()
@@ -108,10 +109,10 @@ def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, threshold = Non
     
     return AUC_dict
 
-def main_fn(p2df, p2res, p2saved_file):
+def main_fn(p2df, p2res, p2saved_file, percent_of_target = 1):
     normalized_weights, original_df, TF_ids, target_ids = normalized_by_target_norm(p2df, p2res)
     
-    AUC_dict = get_AUCell_mat(original_df, normalized_weights, TF_ids, target_ids)
+    AUC_dict = get_AUCell_mat(original_df, normalized_weights, TF_ids, target_ids, percent_of_target)
     with open(p2saved_file, 'wb') as f:
         pickle.dump(AUC_dict, f)
 

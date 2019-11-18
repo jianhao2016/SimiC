@@ -1,0 +1,7 @@
+exclude code/simiclasso/dummy.py
+exclude code/simiclasso/dummy.sh
+exclude code/simiclasso/load_10x_data.py
+exclude code/simiclasso/load_GSE_data.py
+exclude code/simiclasso/load_mouse_data.py
+exclude code/simiclasso/weighted_AUC_mat_all_target.py
+
