@@ -593,8 +593,10 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
     dict_to_saved = {'weight_dic' : trained_weight_dict,
                      'adjusted_r_squared': r2_dict_test,
                      'standard_error': std_error_dict_test,
-                     'TF_ids'     : [symbols.upper() for symbols in TF_ids],
-                     'query_targets' : [symbols.upper() for symbols in query_target_list]
+                     # 'TF_ids'     : [symbols.upper() for symbols in TF_ids],
+                     # 'query_targets' : [symbols.upper() for symbols in query_target_list]
+                     'TF_ids'     : [symbols for symbols in TF_ids],
+                     'query_targets' : [symbols for symbols in query_target_list]
                      }
 
     save_dict(dict_to_saved, p2saved_file)

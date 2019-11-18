@@ -28,7 +28,7 @@ def normalized_by_target_norm(p2df, p2res):
     target_ids = res_dict['query_targets']
 
     original_df = pd.read_pickle(p2df)
-    original_df.columns = map(str.upper, original_df.columns)
+    # original_df.columns = map(str.upper, original_df.columns)
 
     target_df = original_df[target_ids]
     target_norms = np.linalg.norm(target_df, axis = 0)
@@ -59,7 +59,7 @@ def cal_AUC(row_vec_in, weight_vec_in):
     expression_descending_order = np.argsort(row_np)[::-1]
     ordered_weighted = weight_np[expression_descending_order]
 
-    div_factor = 5
+    div_factor = 1
     len_of_genes = len(ordered_weighted) // div_factor
     sum_of_weight = np.sum(ordered_weighted[:len_of_genes])
 
@@ -108,12 +108,18 @@ def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, threshold = Non
     
     return AUC_dict
 
-# ----------
-p2df = '/data/jianhao/hepatocyte_update_dataset_101619/magic_cell_mat_w_label_pd'
-p2res = '/data/jianhao/hepatocyte_update_dataset_101619/new_results_with_monoc_NF_100'
+def main_fn(p2df, p2res, p2saved_file):
+    normalized_weights, original_df, TF_ids, target_ids = normalized_by_target_norm(p2df, p2res)
+    
+    AUC_dict = get_AUCell_mat(original_df, normalized_weights, TF_ids, target_ids)
+    with open(p2saved_file, 'wb') as f:
+        pickle.dump(AUC_dict, f)
 
-normalized_weights, original_df, TF_ids, target_ids = normalized_by_target_norm(p2df, p2res)
-
-AUC_dict = get_AUCell_mat(original_df, normalized_weights, TF_ids, target_ids)
-with open('/data/jianhao/hepatocyte_update_dataset_101619/AUC_dict_hepa_monoc_states', 'wb') as f:
-    pickle.dump(AUC_dict, f)
+if __name__ == '__main__':
+    # ----------
+    # p2df = '/data/jianhao/hepatocyte_update_dataset_101619/magic_cell_mat_w_label_pd'
+    # p2res = '/data/jianhao/hepatocyte_update_dataset_101619/new_results_with_monoc_NF_100'
+    p2df = '/data/jianhao/hepatocyte_update_dataset_101619/Bee_DF.pickle'
+    p2res = '/data/jianhao/hepatocyte_update_dataset_101619/Bees_results_updated'
+    p2saved_file = '/data/jianhao/hepatocyte_update_dataset_101619/AUC_dict_bees'
+    

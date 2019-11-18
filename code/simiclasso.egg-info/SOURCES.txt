@@ -4,8 +4,15 @@ requirements.txt
 setup.py
 code/check_TF_and_weights.ipynb
 code/check_train_test_similarity.ipynb
+code/jupyter_tab_close_test
+code/load_rds.ipynb
 code/phate_plot.ipynb
+code/simicLASSO_pipeline-AUCell.ipynb
+code/simicLASSO_pipeline-Copy1.ipynb
 code/simicLASSO_pipeline.ipynb
+code/.ipynb_checkpoints/load_rds-checkpoint.ipynb
+code/.ipynb_checkpoints/simicLASSO_pipeline-AUCell-checkpoint.ipynb
+code/.ipynb_checkpoints/simicLASSO_pipeline-Copy1-checkpoint.ipynb
 code/.ipynb_checkpoints/simicLASSO_pipeline-checkpoint.ipynb
 code/simiclasso/__init__.py
 code/simiclasso/aver_clus_regression.py
@@ -15,6 +22,7 @@ code/simiclasso/clus_regression_backup.py
 code/simiclasso/clus_regression_mouse.py
 code/simiclasso/common_io.py
 code/simiclasso/direct_regression.py
+code/simiclasso/dummy.py
 code/simiclasso/dummy.sh
 code/simiclasso/evaluation_metric.py
 code/simiclasso/gene_id_to_name.py
@@ -25,6 +33,8 @@ code/simiclasso/magic_smooth.py
 code/simiclasso/sc_different_clustering.py
 code/simiclasso/sort_weight.py
 code/simiclasso/visualization.py
+code/simiclasso/weighted_AUC_mat.py
+code/simiclasso/weighted_AUC_mat_all_target.py
 code/simiclasso.egg-info/PKG-INFO
 code/simiclasso.egg-info/SOURCES.txt
 code/simiclasso.egg-info/dependency_links.txt
@@ -35,6 +45,7 @@ code/simiclasso/__pycache__/common_io.cpython-36.pyc
 code/simiclasso/__pycache__/evaluation_metric.cpython-36.pyc
 code/simiclasso/__pycache__/gene_id_to_name.cpython-36.pyc
 code/simiclasso/__pycache__/sc_different_clustering.cpython-36.pyc
+data/TFCheckpoint_download_180515.txt
 data/Young_gene_id_to_name_pickle
 data/hg_gene_id_to_name_pickle
 data/hg_genes.tsv
@@ -53,9 +64,14 @@ data/diff_gene_list/gene_id_TF_and_ensembl_pickle
 data/diff_gene_list/gene_id_list_encode_v29_release_pickle
 data/diff_gene_list/gene_id_list_not_in_encode_v29_release_pickle
 data/diff_gene_list/gene_id_non_TF_and_ensembl_pickle
+data/diff_gene_list/human_TF.pickle
+data/diff_gene_list/mouse_TF.pickle
 data/diff_gene_list/top_200_MAD_val_selected_TF_pickle
 data/diff_gene_list/top_50_MAD_val_selected_TF_pickle
 data/diff_gene_list/undefined_gene_list
 dist/simiclasso-0.0.3-py3.6.egg
 dist/simiclasso-0.1.0-py3.6.egg
 dist/simiclasso-0.1.1-py3.6.egg
+dist/simiclasso-0.1.2-py3.6.egg
+dist/simiclasso-0.1.3-py3.6.egg
+dist/simiclasso-0.1.3-py3.7.egg
