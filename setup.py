@@ -15,7 +15,7 @@ from setuptools import setup
 
 setup(
         name = 'simiclasso',
-        version = '0.1.5',
+        version = '0.1.6',
         author = 'Jianhao Peng',
         author_email = 'jianhao2@illinois.edu',
         description = 'initial package for simiclasso',

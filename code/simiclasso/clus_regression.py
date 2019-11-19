@@ -22,6 +22,7 @@ import random
 import copy
 import itertools
 import math
+import sys
 from sklearn.linear_model import LassoLars, MultiTaskLasso
 from sklearn.preprocessing import normalize
 from sklearn.manifold import TSNE
@@ -76,6 +77,7 @@ def extract_tf_target_mat_from_cluster_dict(cluster_dict, tf_list, target_list):
         target_mat = target_df.values
         target_list = target_df.columns.values.tolist()
 
+        sys.stdout.flush()
         print('cell type ', label)
         print('\tTF size:', TF_mat.shape)
         print('\tTarget size:', target_mat.shape)
@@ -233,6 +235,7 @@ def rcd_lasso_multi_cluster(mat_dict, similarity,
     r2_0, r2_dict_0 = average_r2_score(mat_dict, weight_dict)
 
     if not slience:
+        sys.stdout.flush()
         print('strat RCD process...')
         print('-' * 7)
         print('\tloss w. reg before RCD: {:.4f}'.format(loss_0))
@@ -251,6 +254,7 @@ def rcd_lasso_multi_cluster(mat_dict, similarity,
             loss_tmp = loss_function_value(mat_dict, weight_dict, similarity,
                     lambda1, lambda2)
             t2 = time.time()
+            sys.stdout.flush()
             print('\ttime elapse in eval: {:.4f}s'.format(t2 - t1))
             print('\ttime elapse in update: {:.4f}s'.format(time_sum / pause_step))
             time_sum = 0
@@ -271,6 +275,7 @@ def rcd_lasso_multi_cluster(mat_dict, similarity,
             lambda1, lambda2)
     r2_final, r2_dict_final = average_r2_score(mat_dict, weight_dict)
     if not slience:
+        sys.stdout.flush()
         print('\tloss w. reg after RCD: {:.4f}'.format(loss_final))
         print('\tR squared after RCD: {:.4f}'.format(r2_final))
         print('-' * 7)
@@ -296,6 +301,7 @@ def find_top_k_TFs(top_k, query_gene_list, coef, tf_list, name_id_mapping):
             gene_name = name_id_mapping[gene_id]
             # importance_TF_list.append(tf_list[int(i)])
             importance_TF_list.append(gene_name)
+        sys.stdout.flush()
         print('target genes:\n\t', name_id_mapping[tgene])
         print('number of non-zero coefficient: ', (abs(co_tmp) > 1e-2).sum())
         print('largest {} value of coefficient:'.format(top_k))
@@ -344,6 +350,7 @@ def cross_validation(mat_dict_train, similarity, list_of_l1, list_of_l2):
         # run k-fold evaluation
         r2_tmp = k_fold_evaluation(k, mat_dict_train,
                 similarity, lambda1, lambda2)
+        sys.stdout.flush()
         print('lambda1 = {}, lamda2 = {}, done'.format(lambda1, lambda2))
         print('----> adjusetd R2 = {:.4f}'.format(r2_tmp))
         print('////////')
@@ -458,10 +465,12 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
                     assignment.append(int(label))
             assignment = np.array(assignment)
     else:
+        sys.stdout.flush()
         print('invalid assignment file, use clustering assignment.')
         D_final, assignment = clustering_method(X, k_cluster, numIter)
         if df_with_label:
             acc, AMI = evaluation_clustering(assignment, Y)
+            sys.stdout.flush()
             print('clustering accuracy = {:.4f}'.format(acc))
             print('AMI = {:.4f}'.format(AMI))
             print('D_final = ', D_final)
@@ -471,6 +480,7 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
 
 
     #### BEGIN of the regression part
+    sys.stdout.flush()
     print('------ Begin the regression part...')
     df = pd.read_pickle(p2df_file)
     # the following should be moved to load_dataset.py
@@ -485,6 +495,7 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
     df = df.reset_index(drop=True)
     df[feat_cols] = X
     df_train, df_test, assign_train, assign_test = split_df_and_assignment(df, assignment)
+    sys.stdout.flush()
     print('df test = ', df_test.shape)
     print('test data assignment set:', set(list(assign_test)))
     print('df train = ', df_train.shape)
@@ -521,6 +532,7 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
 
     tf_list = get_top_k_MAD_TFs(num_TFs, df_train, full_tf_list)
     query_target_list = get_top_k_non_zero_targets(num_target_genes, df_train, target_list)
+    sys.stdout.flush()
     print('-' * 7)
 
     print('.... generating train set')
@@ -536,6 +548,7 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
     if cross_val == True:
         ### run cross_validation!!!!!! #############
 
+        sys.stdout.flush()
         print('start cross validation!!!')
         list_of_l1 = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
         # list_of_l1 = [1e-1, 1e-2, 1e-3]
@@ -569,6 +582,7 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
         r2_aver_test, r2_dict_test = average_r2_score(mat_dict_test, trained_weight_dict)
         r2_final_test.append(r2_aver_test)
         r2_final_0 += average_r2_score(mat_dict_test, weight_dict_0)[0]
+    sys.stdout.flush()
     print('-' * 7)
     # print(train_error)
     print('final train error w.o. reg = {:.4f}+/-{:.4f}'.format(np.mean(train_error),

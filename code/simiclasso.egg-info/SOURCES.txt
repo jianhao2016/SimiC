@@ -30,6 +30,7 @@ code/simiclasso/sc_different_clustering.py
 code/simiclasso/sort_weight.py
 code/simiclasso/visualization.py
 code/simiclasso/weighted_AUC_mat.py
+code/simiclasso/weighted_AUC_mat_upper_cases.py
 code/simiclasso.egg-info/PKG-INFO
 code/simiclasso.egg-info/SOURCES.txt
 code/simiclasso.egg-info/dependency_links.txt
@@ -72,3 +73,4 @@ dist/simiclasso-0.1.2-py3.6.egg
 dist/simiclasso-0.1.3-py3.6.egg
 dist/simiclasso-0.1.3-py3.7.egg
 dist/simiclasso-0.1.4-py3.6.egg
+dist/simiclasso-0.1.5-py3.6.egg

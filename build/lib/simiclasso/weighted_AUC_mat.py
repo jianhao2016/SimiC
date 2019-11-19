@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import ipdb
 import time
+import sys
 
 def normalized_by_target_norm(p2df, p2res):
     '''
@@ -103,6 +104,7 @@ def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, percent_of_targ
             # print('label {}, row {} done in {:.2}s'.format(label, row_idx, time_row_end - time_row_start))
             AUC_mat[row_idx, :] = tmp_AUC_row
         time_end = time.time()
+        sys.stdout.flush()
         print('label {} done in {:.2}s'.format(label, time_end - time_start))
             
         AUC_dict[label] = pd.DataFrame(data=AUC_mat, columns = TF_ids, index=original_index)

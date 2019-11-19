@@ -29,7 +29,7 @@ def normalized_by_target_norm(p2df, p2res):
     target_ids = res_dict['query_targets']
 
     original_df = pd.read_pickle(p2df)
-    # original_df.columns = map(str.upper, original_df.columns)
+    original_df.columns = map(str.upper, original_df.columns)
 
     target_df = original_df[target_ids]
     target_norms = np.linalg.norm(target_df, axis = 0)
@@ -84,7 +84,10 @@ def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, percent_of_targ
 
         # df_in will be the expression matrix
         time_start = time.time()
+        num_row = 0
+        time_row_start = time.time()
         for row in df_in.iterrows():
+            num_row += 1
             tmp_AUC_row = np.zeros(len(TF_ids))
             row_idx = row[0]
             # combined_gene_list = list(target_ids) + list(TF_ids)
@@ -92,7 +95,6 @@ def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, percent_of_targ
             row_series_in = row[1][combined_gene_list]
             row_vec_in = row_series_in.values
 
-            time_row_start = time.time()
             for tf_idx in range(len(TF_ids)):
                 # weight_series_in = pd.Series(data = weight_mat[tf_idx, :], index = target_ids)
                 # AUC_score = cal_AUC(row_series_in, weight_series_in)
@@ -100,8 +102,11 @@ def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, percent_of_targ
                 AUC_score = cal_AUC(row_vec_in, weight_vec_in, percent_of_target)
 
                 tmp_AUC_row[tf_idx] = AUC_score
-            time_row_end = time.time()
-            # print('label {}, row {} done in {:.2}s'.format(label, row_idx, time_row_end - time_row_start))
+            if num_row % 1000 == 0:
+                time_row_end = time.time()
+                sys.stdout.flush()
+                print('label {}, row {} done in {:.2}s'.format(label, row_idx, time_row_end - time_row_start))
+                time_row_start = time.time()
             AUC_mat[row_idx, :] = tmp_AUC_row
         time_end = time.time()
         sys.stdout.flush()
