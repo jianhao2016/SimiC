@@ -12,23 +12,23 @@ test file for simicLASSO_op
 
 from clus_regression import simicLASSO_op
 from weighted_AUC_mat import main_fn
-
-p2df = '/data/jianhao/hepatocyte_update_dataset_101619/magic_cell_mat_w_label_pd'
-p2assignment = '/data/jianhao/hepatocyte_update_dataset_101619/monoc_simple_group_assign'
-k_cluster = 3
-similarity = True
-p2tf = '/data/jianhao/mouse_TF.pickle'
-p2saved_file = '/data/jianhao/hepatocyte_update_dataset_101619/monoc_simple_state_results_NF_100'
+# 
+p2df = '/data/jianhao/hepatocyte_update_dataset_101619/Bee_DF.pickle'
+p2assignment = '/data/jianhao/hepatocyte_update_dataset_101619/Bees_assignment'
+k_cluster = 2
+similarity = False
+p2tf = '/data/jianhao/hepatocyte_update_dataset_101619/Bee_TFs.pickle'
+p2saved_file = '/data/jianhao/hepatocyte_update_dataset_101619/Bees_results_no_simic'
 num_TFs = 200
-num_target_genes = 1000
+num_target_genes = 2000
 max_rcd_iter = 500000
-df_with_label = True
+df_with_label = False
 _NF = 100
 
-# simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf, p2saved_file, num_TFs, num_target_genes, _NF = _NF, 
-#         max_rcd_iter = max_rcd_iter, df_with_label = df_with_label)
+simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf, p2saved_file, num_TFs, num_target_genes, _NF = _NF, 
+        max_rcd_iter = max_rcd_iter, df_with_label = df_with_label)
 
-p2AUC = '/data/jiahao/hepatocyte_update_dataset_101619/AUC_dict_monoc_3groups_1118'
+p2AUC = '/data/jianhao/hepatocyte_update_dataset_101619/AUC_Bee_no_simic'
 main_fn(p2df, p2saved_file, p2AUC)
 
 # p2df = '/data/jianhao/hepatocyte_update_dataset_101619/Bee_DF.pickle'
@@ -44,9 +44,9 @@ main_fn(p2df, p2saved_file, p2AUC)
 # df_with_label = False
 # _NF = 100
 # 
-# simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf, p2saved_file, num_TFs, num_target_genes, _NF = _NF, 
-#         max_rcd_iter = max_rcd_iter, df_with_label = df_with_label)
+# # simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf, p2saved_file, num_TFs, num_target_genes, _NF = _NF, 
+# #         max_rcd_iter = max_rcd_iter, df_with_label = df_with_label)
 # 
-# p2AUC = '/data/jiahao/hepatocyte_update_dataset_101619/AUC_dict_monoc_3groups'
+# p2AUC = '/data/jianhao/hepatocyte_update_dataset_101619/AUC_dict_monoc_3groups'
 # main_fn(p2df, p2saved_file, p2AUC)
 # 

@@ -74,3 +74,4 @@ dist/simiclasso-0.1.3-py3.6.egg
 dist/simiclasso-0.1.3-py3.7.egg
 dist/simiclasso-0.1.4-py3.6.egg
 dist/simiclasso-0.1.5-py3.6.egg
+dist/simiclasso-0.1.6-py3.6.egg
