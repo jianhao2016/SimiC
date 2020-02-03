@@ -16,19 +16,22 @@ from weighted_AUC_mat import main_fn
 p2df = '/data/jianhao/hepatocyte_update_dataset_101619/Bee_DF.pickle'
 p2assignment = '/data/jianhao/hepatocyte_update_dataset_101619/Bees_assignment'
 k_cluster = 2
-similarity = False
+similarity = True
 p2tf = '/data/jianhao/hepatocyte_update_dataset_101619/Bee_TFs.pickle'
-p2saved_file = '/data/jianhao/hepatocyte_update_dataset_101619/Bees_results_no_simic'
+p2saved_file = '/data/jianhao/hepatocyte_update_dataset_101619/Bees_results_simic'
 num_TFs = 200
 num_target_genes = 2000
 max_rcd_iter = 500000
 df_with_label = False
+lambda1=1e-5
+lambda2=0.1
 _NF = 100
 
 simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf, p2saved_file, num_TFs, num_target_genes, _NF = _NF, 
-        max_rcd_iter = max_rcd_iter, df_with_label = df_with_label)
+        max_rcd_iter = max_rcd_iter, df_with_label = df_with_label,
+        lambda1=lambda1, lambda2 = lambda2)
 
-p2AUC = '/data/jianhao/hepatocyte_update_dataset_101619/AUC_Bee_no_simic'
+p2AUC = '/data/jianhao/hepatocyte_update_dataset_101619/AUC_Bee_simic'
 main_fn(p2df, p2saved_file, p2AUC)
 
 # p2df = '/data/jianhao/hepatocyte_update_dataset_101619/Bee_DF.pickle'
