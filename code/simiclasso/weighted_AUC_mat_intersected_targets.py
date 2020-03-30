@@ -51,7 +51,7 @@ def find_significant_weights(normalized_weight_matrix, th = 0.9):
     significant_weights_indicator = outside_90_intervals
     return significant_weights_indicator
 
-def find_intersect_and_union_targets(normalized_by_target_norm, TF_ids, target_ids):
+def find_intersect_and_union_targets(normalized_by_target_norm, TF_ids, target_ids, sig_level = 0.9):
     intersect_indicator = np.ones((len(TF_ids), len(target_ids)))
     union_indicator = np.zeros((len(TF_ids), len(target_ids)))
     
@@ -60,7 +60,7 @@ def find_intersect_and_union_targets(normalized_by_target_norm, TF_ids, target_i
     
     for states in normalized_by_target_norm:
         normalized_mat = normalized_by_target_norm[states]
-        sig_ind = find_significant_weights(normalized_mat)
+        sig_ind = find_significant_weights(normalized_mat, th = sig_level)
         intersect_indicator = np.logical_and(intersect_indicator, sig_ind)
         union_indicator = np.logical_or(union_indicator, sig_ind)
         
@@ -203,29 +203,29 @@ if __name__ == '__main__':
     # p2res = '/data/jianhao/hepatocyte_update_dataset_101619/Bees_results_updated'
     # p2saved_file = '/data/jianhao/hepatocyte_update_dataset_101619/AUC_dict_bees'
 
-    cima_res = '/data/cima/hsc_simic_1.6_100_2000_MAD.pickle'
-    cima_df = '/data/cima/hsc_DF_for_simic_100_2000_MAD.pickle'
-    cima_saved_AUC = '/data/cima/intersected_AUC_cima'
+    cima_res = '/data/jianhao/hepatocyte_update_dataset_101619/monoc_4_states/4_states_res_dict_no_simic'
+    cima_df = '/data/jianhao/hepatocyte_update_dataset_101619/magic_cell_mat_w_label_pd'
+    cima_saved_AUC = '/data/jianhao/hepatocyte_update_dataset_101619/monoc_4_states/4_states_AUC_simic_intersection'
     main_fn(cima_df, cima_res, cima_saved_AUC)
     print('-' * 7, 'cima done!')
 
-    res_list = ['monoc_simple_state_results_NF_100', 'hepa_results_monoc_simple_states_no_simic', 
-            'Bees_results_simic', 'Bees_results_no_simic']
+    # res_list = ['monoc_simple_state_results_NF_100', 'hepa_results_monoc_simple_states_no_simic', 
+    #         'Bees_results_simic', 'Bees_results_no_simic']
 
-    df_list = ['magic_cell_mat_w_label_pd', 'magic_cell_mat_w_label_pd',
-            'Bee_DF.pickle', 'Bee_DF.pickle']
+    # df_list = ['magic_cell_mat_w_label_pd', 'magic_cell_mat_w_label_pd',
+    #         'Bee_DF.pickle', 'Bee_DF.pickle']
 
-    file_list = ['intersected_AUC_dict_monoc_3_states_hepa_simic',
-            'intersected_AUC_dict_monoc_3_states_hepa_no_simic', 
-            'intersected_AUC_dict_Bee_simic', 
-            'intersected_AUC_dict_Bee_no_simic']
+    # file_list = ['intersected_AUC_dict_monoc_3_states_hepa_simic',
+    #         'intersected_AUC_dict_monoc_3_states_hepa_no_simic', 
+    #         'intersected_AUC_dict_Bee_simic', 
+    #         'intersected_AUC_dict_Bee_no_simic']
 
-    for idx in range(4):
-        root_path = '/data/jianhao/hepatocyte_update_dataset_101619/'
-        p2res = os.path.join(root_path, res_list[idx])
-        p2df = os.path.join(root_path, df_list[idx])
-        p2saved_file = os.path.join(root_path, 'intersect_same_length_weight', file_list[idx])
+    # for idx in range(4):
+    #     root_path = '/data/jianhao/hepatocyte_update_dataset_101619/'
+    #     p2res = os.path.join(root_path, res_list[idx])
+    #     p2df = os.path.join(root_path, df_list[idx])
+    #     p2saved_file = os.path.join(root_path, 'intersect_same_length_weight', file_list[idx])
 
-        print(p2saved_file)
-        main_fn(p2df, p2res, p2saved_file)
-    
+    #     print(p2saved_file)
+    #     main_fn(p2df, p2res, p2saved_file)
+    # 
