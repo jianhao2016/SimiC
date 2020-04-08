@@ -21,7 +21,7 @@ For Python package, use the jupyter notebook `SimiC-full-pipeline` to genereate 
 ```
 python SimiC_exmaple.py
 ```
-The default output contains 3 GRNs with 200 driver genes and 1000 target genes.
+The default output contains 3 GRNs with 50 driver genes and 100 target genes.
 
 ## Running the code in R
 To run SimiC with same settings as the python script, go the folder `example/R_API/`. Run the script `SimiC_example.R` in R or Rstudio.
