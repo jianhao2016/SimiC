@@ -1,6 +1,6 @@
 # SimiC
 
-## Installation:
+## Installation
 Please make sure that you are using Python 3.x, and the packages in `requirements.txt` is properly installed. If you are using `pip` then you can run:
 
 ```
