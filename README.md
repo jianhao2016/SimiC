@@ -12,7 +12,7 @@ To install SimiC, go to the repository folder, and run:
 python setup.py install
 ```
 
-After the python package is install, in order to use the R API for SimiC, you need to install R package `reticulate`.
+After the python package is installed, you need to install R package `reticulate` in order to use the R API for SimiC.
 
 ## Running the code in Python
 To run SimiC with Single-cell RNA-seq of a small test example, go to folder `exmaple`. The test data provided here is a subsample of the hepatocypte dataset we used in [our paper](https://www.biorxiv.org/content/10.1101/2020.04.03.023002v1). The test data contains 500 cells from 3 different states.
