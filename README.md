@@ -15,7 +15,7 @@ python setup.py install
 After the python package is install, in order to use the R API for SimiC, you need to install R package `reticulate`.
 
 ## Running the code in python
-To run SimiC with Single-cell RNA-seq of a small test example, go to folder exmaple. The test data provided here is a subsample of the hepatocypte dataset we used in [our paper](https://www.biorxiv.org/content/10.1101/2020.04.03.023002v1). The test data contains 500 cells from 3 different states.
+To run SimiC with Single-cell RNA-seq of a small test example, go to folder `exmaple`. The test data provided here is a subsample of the hepatocypte dataset we used in [our paper](https://www.biorxiv.org/content/10.1101/2020.04.03.023002v1). The test data contains 500 cells from 3 different states.
 
 For Python package, use the jupyter notebook `SimiC-full-pipeline` to genereate the GRNs and wAUC score matrices. Or you can run the scirpt in terminal:
 ```
