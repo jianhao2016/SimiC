@@ -10,20 +10,20 @@
 test file for simicLASSO_op
 """
 
-from clus_regression import simicLASSO_op
-from weighted_AUC_mat import main_fn
+from simiclasso.clus_regression import simicLASSO_op
+from simiclasso.weighted_AUC_mat import main_fn
 import time
 # 
-p2df = '/data/jianhao/hepatocyte_update_dataset_101619/magic_cell_mat_w_label_pd'
-p2assignment = '/data/jianhao/hepatocyte_update_dataset_101619/monoc_simple_group_assign'
+p2df = 'test_data/test_data.pickle'
+p2assignment = 'test_data/test_assignment.txt'
 k_cluster = 3
 similarity = True
-p2tf = '/data/jianhao/hepatocyte_update_dataset_101619/top_200_MAD_val_selected_TF_pickle'
-p2saved_file = '/data/jianhao/hepatocyte_update_dataset_101619/test_time_output/3_states_res_dict_simic'
-num_TFs = 200
-num_target_genes = 1000
+p2tf = 'test_data/mouse_TF.pickle'
+p2saved_file = 'test_incident_matrices'
+num_TFs = 50
+num_target_genes = 100
 max_rcd_iter = 50000
-df_with_label = True
+df_with_label = False
 lambda1=1e-5
 lambda2=0.1
 _NF = 100
@@ -39,7 +39,7 @@ time_pass = lambda x: '{}h{}min'.format(x // 3600, x// 60 - x//3600)
 print('simic uses {}'.format(time_pass(t_simic)))
 
 ts_auc = time.time()
-p2AUC = '/data/jianhao/hepatocyte_update_dataset_101619/test_time_output/3_states_AUC_simic'
+p2AUC = 'test_wAUC_matrices'
 main_fn(p2df, p2saved_file, p2AUC)
 te_auc = time.time()
 
