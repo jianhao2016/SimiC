@@ -407,7 +407,7 @@ def get_train_mat_in_k_fold(mat_dict, idx, k):
     return mat_dict_train, mat_dict_eval
 
 def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf, 
-        p2saved_file, num_TFs, num_target_genes, 
+        p2saved_file, num_TFs = -1, num_target_genes = -1, 
         numIter = 1000, _NF = 1, lambda1 = 1e-2, lambda2 = 1e-5,
         cross_val = False, num_rep = 1, max_rcd_iter = 500000, 
         df_with_label = True):
@@ -530,8 +530,19 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
     full_tf_list_lower_case = [x.lower() for x in full_tf_list]
     target_list = [x for x in feat_cols if x.lower() not in full_tf_list_lower_case]
 
-    tf_list = get_top_k_MAD_TFs(num_TFs, df_train, full_tf_list)
-    query_target_list = get_top_k_non_zero_targets(num_target_genes, df_train, target_list)
+    num_TFs = min(num_TFs, len(full_tf_list))
+    num_target_genes = min(num_target_genes, len(target_list))
+
+    if num_TFs != -1:
+        tf_list = get_top_k_MAD_TFs(num_TFs, df_train, full_tf_list)
+    else:
+        tf_list = get_top_k_MAD_TFs(len(full_tf_list), df_train, full_tf_list)
+
+    if num_target_genes != -1:
+        query_target_list = get_top_k_non_zero_targets(num_target_genes, df_train, target_list)
+    else:
+        query_target_list = get_top_k_non_zero_targets(len(target_list), df_train, target_list)
+
     sys.stdout.flush()
     print('-' * 7)
 
