@@ -406,8 +406,8 @@ def get_train_mat_in_k_fold(mat_dict, idx, k):
                 }
     return mat_dict_train, mat_dict_eval
 
-def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf, 
-        p2saved_file, num_TFs = -1, num_target_genes = -1, 
+def simicLASSO_op(p2df, p2assignment, similarity, p2tf, p2saved_file, 
+        k_cluster = None, num_TFs = -1, num_target_genes = -1, 
         numIter = 1000, _NF = 1, lambda1 = 1e-2, lambda2 = 1e-5,
         cross_val = False, num_rep = 1, max_rcd_iter = 500000, 
         df_with_label = True):
@@ -467,6 +467,8 @@ def simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf,
     else:
         sys.stdout.flush()
         print('invalid assignment file, use clustering assignment.')
+        if k_cluster is None:
+            raise ValueError('assignment file is not provided, and number of cluster is not given. quit funciton now.')
         D_final, assignment = clustering_method(X, k_cluster, numIter)
         if df_with_label:
             acc, AMI = evaluation_clustering(assignment, Y)
