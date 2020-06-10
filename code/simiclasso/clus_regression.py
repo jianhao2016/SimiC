@@ -354,6 +354,7 @@ def cross_validation(mat_dict_train, similarity, list_of_l1, list_of_l2):
         print('lambda1 = {}, lamda2 = {}, done'.format(lambda1, lambda2))
         print('----> adjusetd R2 = {:.4f}'.format(r2_tmp))
         print('////////')
+        sys.stdout.flush()
         if r2_tmp > opt_r2_score:
             l1_best, l2_best = lambda1, lambda2
             opt_r2_score = r2_tmp
@@ -567,9 +568,11 @@ def simicLASSO_op(p2df, p2assignment, similarity, p2tf, p2saved_file,
         # list_of_l1 = [1e-1, 1e-2, 1e-3]
         list_of_l2 = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
         l1_opt, l2_opt, r2_opt = cross_validation(mat_dict_train, similarity, list_of_l1, list_of_l2)
+        sys.stdout.flush()
         print('cv done! lambda1 = {}, lambda2 = {}, opt R squared on eval {:.4f}'.format(
             l1_opt, l2_opt, r2_opt))
         print('-' * 7)
+        sys.stdout.flush()
         lambda1 = l1_opt
         lambda2 = l2_opt
         ############### end of cv ####################
