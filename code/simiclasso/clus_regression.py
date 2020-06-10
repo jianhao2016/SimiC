@@ -495,7 +495,7 @@ def simicLASSO_op(p2df, p2assignment, similarity, p2tf, p2saved_file,
 
 
     df = df.reset_index(drop=True)
-    df[feat_cols] = X
+    # df[feat_cols] = X
     df_train, df_test, assign_train, assign_test = split_df_and_assignment(df, assignment)
     sys.stdout.flush()
     print('df test = ', df_test.shape)
