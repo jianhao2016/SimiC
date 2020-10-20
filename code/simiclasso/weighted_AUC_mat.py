@@ -56,6 +56,7 @@ def cal_AUC_df(row_series_in, weight_series_in):
 
 def cal_AUC(row_vec_in, weight_vec_in, cur_adj_r2_for_all_target, sort_by, 
         adj_r2_threshold = 0.7, 
+        select_top_k_targets = None,
         percent_of_target = 1):
     row_np = np.array(row_vec_in)
     weight_np = np.array(weight_vec_in)
@@ -81,7 +82,15 @@ def cal_AUC(row_vec_in, weight_vec_in, cur_adj_r2_for_all_target, sort_by,
     len_of_genes = int(len(ordered_weighted) * percent_of_target)
     sum_of_weight = np.sum(ordered_weighted[:len_of_genes])
 
-    running_sum = [np.sum(ordered_weighted[:x+1]) for x in range(len_of_genes)]
+    if select_top_k_targets is not None:
+        assert isinstance(select_top_k_targets, int)
+        if select_top_k_targets > len_of_genes:
+            select_top_k_targets = len_of_genes
+    else:
+        select_top_k_targets = len_of_genes
+
+    # running_sum = [np.sum(ordered_weighted[:x+1]) for x in range(len_of_genes)]
+    running_sum = [np.sum(ordered_weighted[:x+1]) for x in range(select_top_k_targets)]
     AUC_score = np.sum(running_sum) / (sum_of_weight * len_of_genes)
     return AUC_score
 
@@ -89,11 +98,13 @@ def cal_AUC(row_vec_in, weight_vec_in, cur_adj_r2_for_all_target, sort_by,
 def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids, 
         adj_r2_dict, 
         adj_r2_threshold = 0.7,
+        select_top_k_targets = None,
         percent_of_target = 1, 
         sort_by = 'expression'):
     '''
     weight_mat: # num_TFs * num_Targets.
     target_ids: all targets, thresholding should only change the value to 0, not removing.
+    select_top_k_targets: if not None, then in computing wAUC, only use the top_k targets with sort_by order.
     '''
     assert sort_by in ['expression', 'weight', 'adj_r2']
 
@@ -124,6 +135,7 @@ def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids,
                         cur_adj_r2_for_all_target,
                         adj_r2_threshold = adj_r2_threshold, 
                         sort_by = sort_by, 
+                        select_top_k_targets = select_top_k_targets,
                         percent_of_target = percent_of_target)
 
                 tmp_AUC_row[tf_idx] = AUC_score
@@ -138,7 +150,8 @@ def get_AUCell_mat(original_df, weight_dict, TF_ids, target_ids,
     
     return AUC_dict
 
-def main_fn(p2df, p2res, p2saved_file, percent_of_target = 1, sort_by = 'expression', adj_r2_threshold = 0.7, debug = False):
+def main_fn(p2df, p2res, p2saved_file, percent_of_target = 1, sort_by = 'expression', adj_r2_threshold = 0.7, 
+        select_top_k_targets = None, debug = False):
     assert sort_by in ['expression', 'weight', 'adj_r2']
 
     normalized_weights, original_df, TF_ids, target_ids, res_dict = normalized_by_target_norm(p2df, p2res)
@@ -150,6 +163,7 @@ def main_fn(p2df, p2res, p2saved_file, percent_of_target = 1, sort_by = 'express
             adj_r2_dict, 
             percent_of_target = percent_of_target, 
             adj_r2_threshold = adj_r2_threshold, 
+            select_top_k_targets = select_top_k_targets,
             sort_by = sort_by)
 
     with open(p2saved_file, 'wb') as f:
