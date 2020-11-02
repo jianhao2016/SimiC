@@ -86,11 +86,14 @@ def cal_AUC(row_vec_in, weight_vec_in, cur_adj_r2_for_all_target, sort_by,
         assert isinstance(select_top_k_targets, int)
         if select_top_k_targets > len_of_genes:
             select_top_k_targets = len_of_genes
+        ordered_weights_top_k = np.zeros_like(ordered_weighted)
+        top_k_weight_idx = np.argpartition(ordered_weighted, -select_top_k_targets)[-select_top_k_targets:]
+        ordered_weights_top_k[top_k_weight_idx] = ordered_weights_top_k[top_k_weight_idx]
     else:
-        select_top_k_targets = len_of_genes
+        ordered_weights_top_k = ordered_weighted
 
-    # running_sum = [np.sum(ordered_weighted[:x+1]) for x in range(len_of_genes)]
-    running_sum = [np.sum(ordered_weighted[:x+1]) for x in range(select_top_k_targets)]
+    running_sum = [np.sum(ordered_weights_top_k[:x+1]) for x in range(len_of_genes)]
+    # running_sum = [np.sum(ordered_weighted[:x+1]) for x in range(select_top_k_targets)]
     AUC_score = np.sum(running_sum) / (sum_of_weight * len_of_genes)
     return AUC_score
 
