@@ -34,6 +34,7 @@ from simiclasso.evaluation_metric import get_r_squared
 from simiclasso.sc_different_clustering import kmeans_clustering, nmf_clustering, spectral_clustering, evaluation_clustering
 from simiclasso.gene_id_to_name import load_dict, save_dict
 from scipy.linalg import eigh, eigvalsh
+from filter_Ws import filter_Ws, filter_and_degree
 
 def extract_cluster_from_assignment(df_in, assignment, k_cluster):
     '''
@@ -348,11 +349,11 @@ def cross_validation(mat_dict_train, similarity, list_of_l1, list_of_l2):
     for lambda1, lambda2 in itertools.product(list_of_l1,
             list_of_l2):
         # run k-fold evaluation
-        r2_tmp = k_fold_evaluation(k, mat_dict_train,
+        print('lambda1 = {}, lambda2 = {}, done'.format(lambda1, lambda2))
+        r2_tmp, dg_tmp = k_fold_evaluation(k, mat_dict_train,
                 similarity, lambda1, lambda2)
         sys.stdout.flush()
-        print('lambda1 = {}, lamda2 = {}, done'.format(lambda1, lambda2))
-        print('----> adjusetd R2 = {:.4f}'.format(r2_tmp))
+        print('----> adjusetd R2 = {:.4f} ; median Target degree = {:.2f}'.format(r2_tmp, dg_tmp))
         print('////////')
         sys.stdout.flush()
         if r2_tmp > opt_r2_score:
@@ -368,16 +369,20 @@ def k_fold_evaluation(k, mat_dict_train, similarity, lambda1, lambda2):
     r2_tmp = average r2 from each evalutaion
     '''
     r2_tmp = 0
+    dg_tmp = 0
     for idx in range(k):
+        # import ipdb; ipdb.set_trace()
         mat_dict_train, mat_dict_eval = get_train_mat_in_k_fold(mat_dict_train,
                 idx, k)
         weight_dict_trained, _ = rcd_lasso_multi_cluster(mat_dict_train, similarity,
                 lambda1, lambda2, slience = True, max_rcd_iter = 10000)
         r2_aver, _ = average_r2_score(mat_dict_eval, weight_dict_trained)
         r2_tmp += r2_aver
-
+        dg_aver = filter_and_degree(weight_dict_trained)
+        dg_tmp += dg_aver
+    aver_dg_tmp = dg_tmp/k
     aver_r2_tmp = r2_tmp/k
-    return aver_r2_tmp
+    return aver_r2_tmp, aver_dg_tmp
 
 def get_train_mat_in_k_fold(mat_dict, idx, k):
     '''
@@ -564,9 +569,11 @@ def simicLASSO_op(p2df, p2assignment, similarity, p2tf, p2saved_file,
 
         sys.stdout.flush()
         print('start cross validation!!!')
-        list_of_l1 = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+        list_of_l1 = [1e-1, 1e-2, 1e-3, 1e-4]
         # list_of_l1 = [1e-1, 1e-2, 1e-3]
-        list_of_l2 = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+        # list_of_l1 = [1e-1]
+        list_of_l2 = [1e-1, 1e-2, 1e-3, 1e-4]
+        # list_of_l2 = [1e-1]
         l1_opt, l2_opt, r2_opt = cross_validation(mat_dict_train, similarity, list_of_l1, list_of_l2)
         sys.stdout.flush()
         print('cv done! lambda1 = {}, lambda2 = {}, opt R squared on eval {:.4f}'.format(

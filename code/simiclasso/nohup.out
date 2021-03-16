@@ -1,0 +1,41 @@
+[22;0t]0;IPython: code/simiclasso
+
+SET LAMBDA1 AND LAMBDA2
+
+
+Done loading, shape of X =  (23642, 1100)
+------ Begin the regression part...
+df in regression shape =  (23642, 1100)
+df test =  (4728, 1100)
+test data assignment set: {0, 1}
+df train =  (18914, 1100)
+train data assignment set: {0, 1}
+-------
+-------
+.... generating train set
+cell type  0
+	TF size: (7462, 99)
+	Target size: (7462, 1002)
+cell type  1
+	TF size: (11452, 99)
+	Target size: (11452, 1002)
+-------
+.... generating test set
+cell type  0
+	TF size: (1869, 99)
+	Target size: (1869, 1002)
+cell type  1
+	TF size: (2859, 99)
+	Target size: (2859, 1002)
+-------
+-------
+final train error w.o. reg = 16.5361+/-0.0000
+test error w.o. reg = 16.1277+/-0.0000
+-------
+R squared of test set(before): -11.2864
+R squared of train set(after): 0.7973+/-0.0000
+R squared of test set(after): 0.7990+/-0.0000
+dumping the dictionary to disk in pickle...
+Done dumping!
+simic uses 3.0h205.0min
+Yay!
