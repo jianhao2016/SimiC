@@ -222,15 +222,20 @@ for(cluster in clusters_2_keep){
     variant <- variant/ sum(rowSums(mat)!=0)
     MinMax_val <- append(MinMax_val,variant)
   }
-  MinMax_clust<-cbind(MinMax_clust,MinMax_val)
+  MinMax_val <- setNames(as.data.frame(MinMax_val), c(cluster))
+  rownames(MinMax_val) <-  unique(df_auc_common$driver)
+  if (is.null(MinMax_clust)){
+    MinMax_clust <- MinMax_val
+  }else{
+    MinMax_clust<-cbind(MinMax_clust,MinMax_val)
+  }
 }
+
 
 
 
 # plot the densities of the AUC and the score per TF
 
-colnames(MinMax_clust)<-unique(df_auc_common$cluster_id)
-rownames(MinMax_clust)<-unique(df_auc_common$driver)
 
 for (clust in clusters_2_keep){
   show(clust)
