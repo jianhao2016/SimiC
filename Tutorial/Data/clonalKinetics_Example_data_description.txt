@@ -1,0 +1,7 @@
+The `clonalKinetics_Example.rds` and `Annotation.rds` contain a subset of cells from:Sheih, Alyssa, et al. "Clonal kinetics and single-cell transcriptional profiling of CAR-T cells in patients undergoing CD19 CAR-T immunotherapy." Nature communications 11.1 (2020): 1-13.
+The data contains 20223 genes across 62167 from non-Hodgkin lymphoma CAR-T further classsified as CD8_Memory, CD8_Effector and CD8_Exhausted
+The data are structured as a Seurat object with the raw data, the normalized data, the different annotated clusters and
+the different time points. 
+
+The time stamp information can be found in `Annotation.rds` and the raw/normalized data can
+be found in `clonalKinetics_Example.rds`.

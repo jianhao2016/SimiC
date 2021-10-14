@@ -1,0 +1,7 @@
+We also provide a set of processed files from ClonalKinetics_filtered.rds and Annotation.rds
+    - ClonalKinetics_filtered.DF.pickle: scRNAseq data matrix. 
+    - ClonalKinetics_filtered.TFs.pickle: list of selected driver genes/Transcription Factors. 
+    - ClonalKinetics_filtered.clusAssign.txt: cluster assignment based on time stamp of each cell. 
+
+Only the top 1000 MAD target genes and the top 100 MAD Transcription Factors are kept.
+This data are organized as a data frame and used as imput for the SimiC pipeline.
