@@ -14,6 +14,12 @@ python setup.py install
 
 After the Python package is installed, you need to install the R package `reticulate` in order to use the R API for SimiC.
 
+## Docker suppport
+If you are not able to install the package with the above installation, we also provide a Dockerfile for you to build you own docker image, and run the package within the container. For details on how to build/run python container, please see this [documentation](https://docs.docker.com/language/python/)
+
+## Tutorial 
+Once the package has been successfully installed, we provide a end-to-end tutorial for analysing Clonal Kinetic data using SimiC. Please refer to the `Tutorial` folder for more detail. 
+
 ## Running the code in Python
 To run SimiC with Single-cell RNA-seq of a small test example, go to folder `exmaple`. The test data provided here is a subsample of the hepatocypte dataset we used in [our paper](https://www.biorxiv.org/content/10.1101/2020.04.03.023002v1). The test data contains 500 cells from 3 different states.
 
