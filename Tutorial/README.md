@@ -111,4 +111,4 @@ main_fn(p2df, p2saved_file, p2AUC, percent_of_target = percent_of_target)
 Once we have the final results from SimiC, comprising the weigth file (`*_Ws.pickle`) and the pondered area under the curve file (`*_AUCs.pickle`) we can use the provided script to analyse these results and obtain the images from the paper.
 
 This script is provided in: `Tutorial/SimiC_Post.R`
-Additionaly, this script needs the original scRNAseq data, in our case a Seurat object, also provided in: `Tutorial/Data/clonalKinetics_Example.rds`
+Additionaly, this script needs the original scRNAseq data, in our case a Seurat object, located at the [Illinois Data Bank](https://databank.illinois.edu/datasets/IDB-3975180).
