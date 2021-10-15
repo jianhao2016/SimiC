@@ -1,4 +1,4 @@
-This tutorial is meant to provide a reproducible example of running SimiC and generating some of the images from the manuscript's Figure 5.
+This tutorial is meant to provide a reproducible example of running SimiC and generating some of the images from the manuscript's Figure 5. The raw data can be downloaded from [Illinois Data Bank](https://databank.illinois.edu/datasets/IDB-3975180). We also provided a synthetic dataset with 5 states and 5000 cells in another [repository](https://databank.illinois.edu/datasets/IDB-4996748). 
 
 
 #### Input data for SimiC
