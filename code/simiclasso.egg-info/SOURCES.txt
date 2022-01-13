@@ -3,14 +3,7 @@ README.md
 __init__.py
 requirements.txt
 setup.py
-code/check_TF_and_weights.ipynb
-code/check_train_test_similarity.ipynb
-code/jupyter_tab_close_test
-code/load_rds.ipynb
-code/phate_plot.ipynb
 code/simicLASSO_pipeline-AUCell.ipynb
-code/simicLASSO_pipeline-Copy1.ipynb
-code/simicLASSO_pipeline.ipynb
 code/.ipynb_checkpoints/load_rds-checkpoint.ipynb
 code/.ipynb_checkpoints/simicLASSO_pipeline-AUCell-checkpoint.ipynb
 code/.ipynb_checkpoints/simicLASSO_pipeline-Copy1-checkpoint.ipynb
@@ -30,6 +23,7 @@ code/simiclasso/sc_different_clustering.py
 code/simiclasso/sort_weight.py
 code/simiclasso/visualization.py
 code/simiclasso/weighted_AUC_mat.py
+code/simiclasso/weighted_AUC_mat_intersected_targets.py
 code/simiclasso/weighted_AUC_mat_upper_cases.py
 code/simiclasso.egg-info/PKG-INFO
 code/simiclasso.egg-info/SOURCES.txt

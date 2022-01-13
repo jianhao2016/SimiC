@@ -28,8 +28,14 @@ lambda1=1e-5
 lambda2=0.1
 _NF = 100
 
+
+# def simicLASSO_op(p2df, p2assignment, similarity, p2tf, p2saved_file, 
+#         k_cluster = None, num_TFs = -1, num_target_genes = -1, 
+#         numIter = 1000, _NF = 1, lambda1 = 1e-2, lambda2 = 1e-5,
+#         cross_val = False, num_rep = 1, max_rcd_iter = 500000, 
+#         df_with_label = True):
 ts_simic = time.time()
-simicLASSO_op(p2df, p2assignment, k_cluster, similarity, p2tf, p2saved_file, num_TFs, num_target_genes, _NF = _NF, 
+simicLASSO_op(p2df, p2assignment, similarity, p2tf, p2saved_file,  k_cluster, num_TFs, num_target_genes, _NF = _NF, 
         max_rcd_iter = max_rcd_iter, df_with_label = df_with_label,
         lambda1=lambda1, lambda2 = lambda2)
 te_simic = time.time()
