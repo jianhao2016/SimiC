@@ -87,13 +87,19 @@ Now we can run SimiC setting these parameters and perform the weighted AUC calcu
 from simiclasso.clus_regression import simicLASSO_op
 from simiclasso.weighted_AUC_mat import main_fn
 
-p2df = 'ClonalKinetics_filtered.DF.pickle' #Path to the gene expression matrix
+p2df = 'ClonalKinetics_filtered.DF.pickle'               #Path to the gene expression matrix
 p2assignment = 'ClonalKinetics_filtered.clustAssign.txt' #Path to the assignment file
-p2tf = 'ClonalKinetics_filtered.TFs.pickle' #Path to the list of TFs
+p2tf = 'ClonalKinetics_filtered.TFs.pickle'              #Path to the list of TFs
+
 lambda1 = 0.01
 lambda2 = 0.01
+k_cluster = None
+num_TFs = -1
+num_target_genes = -1
+df_with_label = False
+
 p2saved_file = './Results/ClonalKinetics_filtered_L1{0}_L2{1}_Ws.pickle'.format(lambda1, lambda2) #Path to the results file
-similarity = True #
+similarity = True 
 max_rcd_iter = 100000
 df_with_label = False #If the assignment of the cells are provided on a separate file, like in our case, set to FALSE.
 simicLASSO_op(p2df, p2assignment, similarity, p2tf, p2saved_file,  k_cluster, num_TFs, num_target_genes, 
